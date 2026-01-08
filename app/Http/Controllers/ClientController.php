@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Client;      // ← ADICIONA ESTA LINHA
+use App\Models\Note;     // ← ADICIONA ESTA LINHA
 
 class ClientController extends Controller
 {
@@ -19,7 +21,7 @@ class ClientController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('company', 'like', "%{$search}%")
+                ->orWhere('company_name', 'like', "%{$search}%")  // ← MUDOU AQUI
                 ->orWhere('email', 'like', "%{$search}%")
                 ->orWhere('phone', 'like', "%{$search}%");
             });
@@ -27,7 +29,7 @@ class ClientController extends Controller
 
         // ===== FILTRO POR EMPRESA =====
         if ($request->filled('company')) {
-            $query->where('company', 'like', "%{$request->company}%");
+            $query->where('company_name', 'like', "%{$request->company}%");  // ← MUDOU AQUI
         }
 
         // ===== ORDENAÇÃO =====
@@ -50,7 +52,7 @@ class ClientController extends Controller
         }
 
         // Pegar lista única de empresas para o filtro
-        $empresas = Client::distinct()->pluck('company')->filter()->sort();
+        $empresas = Client::distinct()->pluck('company_name')->filter()->sort();  // ← MUDOU AQUI
 
         return view('clients.index', compact('clients', 'empresas'));
     }
