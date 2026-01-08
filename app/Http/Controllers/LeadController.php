@@ -90,28 +90,38 @@ class LeadController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, string $id)
     {
+        $lead = \App\Models\Lead::where('user_id', auth()->id())->findOrFail($id);
+
+        // 1. Mudança Rápida (Botões do Kanban)
+        // Se veio um 'status' no request, salva e volta rápido.
+        if ($request->has('status')) {
+            $lead->status = $request->status;
+            $lead->save();
+            return back();
+        }
+
+        // 2. Edição Completa (Formulário)
         $request->validate([
             'title' => 'required',
-            'client_id' => 'required|exists:clients,id',
+            'value' => 'numeric',
+            'client_id' => 'required'
         ]);
 
-        \App\Models\Lead::create([
-            'user_id' => auth()->id(),
-            'client_id' => $request->client_id,
-            'title' => $request->title,
-            'value' => $request->value ?? 0,
-            'status' => 'new',
-            
-            // Salvando o endereço
-            'cep' => $request->cep,
-            'address' => $request->address,
-            'city' => $request->city,
-            'state' => $request->state,
-        ]);
+        // ATENÇÃO: Aqui incluímos 'status' e os campos de endereço
+        $lead->update($request->only([
+            'title', 
+            'value', 
+            'client_id', 
+            'status', // <--- Agora permite mudar status
+            'cep',    // <--- Agora salva o endereço na edição
+            'address', 
+            'city', 
+            'state'
+        ]));
 
-        return redirect()->route('leads.index')->with('success', 'Negócio criado com sucesso!');
+        return redirect()->route('leads.show', $lead->id)->with('success', 'Negócio atualizado!');
     }
 
     /**
