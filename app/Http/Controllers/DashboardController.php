@@ -2,64 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Lead;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $userId = auth()->id();
+        // ===== MÉTRICAS BÁSICAS =====
+        $totalClientes = Client::count();
+        $negociosAbertos = Lead::whereIn('status', ['NEW', 'NEGOTIATION'])->count();
+        $totalVendido = Lead::where('status', 'WON')->sum('value');
 
-        // 1. Conta total de clientes do vendedor
-        $totalClients = Client::where('user_id', $userId)->count();
+        // ===== TAXA DE CONVERSÃO =====
+        $totalNegocios = Lead::count();
+        $negociosGanhos = Lead::where('status', 'WON')->count();
+        $taxaConversao = $totalNegocios > 0 ? round(($negociosGanhos / $totalNegocios) * 100, 1) : 0;
 
-        // 2. Conta leads ativos (Novos ou Em negociação)
-        $activeLeads = Lead::where('user_id', $userId)
-                            ->whereIn('status', ['new', 'negotiation'])
-                            ->count();
+        // ===== TICKET MÉDIO =====
+        $ticketMedio = $negociosGanhos > 0 ? round($totalVendido / $negociosGanhos, 2) : 0;
 
-        // 3. Soma o valor de tudo que foi ganho
-        $wonValue = Lead::where('user_id', $userId)
-                        ->where('status', 'won')
-                        ->sum('value');
+        // ===== GRÁFICO DE VENDAS (ÚLTIMOS 6 MESES) =====
+        $vendasPorMes = Lead::where('status', 'WON')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->select(
+                DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
+                DB::raw('SUM(value) as total')
+            )
+            ->groupBy('mes')
+            ->orderBy('mes')
+            ->get();
 
-        // Manda tudo pra tela
-        return view('dashboard', compact('totalClients', 'activeLeads', 'wonValue'));
-    }
-
-    // Adicione a função search logo abaixo da index
-    public function search(Request $request)
-    {
-        $query = $request->input('q');
-
-        // Se a busca for vazia, volta pra trás
-        if (!$query) {
-            return back();
+        // Formatar dados para o gráfico
+        $meses = [];
+        $valores = [];
+        foreach ($vendasPorMes as $venda) {
+            // Converter "2025-01" para "Jan/25"
+            $meses[] = date('M/y', strtotime($venda->mes . '-01'));
+            $valores[] = $venda->total;
         }
 
-        $userId = auth()->id();
+        // ===== DISTRIBUIÇÃO DO FUNIL =====
+        $distribuicaoFunil = [
+            'novos' => Lead::where('status', 'NEW')->count(),
+            'negociacao' => Lead::where('status', 'NEGOTIATION')->count(),
+            'ganhos' => Lead::where('status', 'WON')->count(),
+            'perdidos' => Lead::where('status', 'LOST')->count(),
+        ];
 
-        // 1. Busca Clientes (pelo nome ou email ou empresa)
-        $clients = Client::where('user_id', $userId)
-                        ->where(function($q) use ($query) {
-                            $q->where('name', 'like', "%{$query}%")
-                              ->orWhere('email', 'like', "%{$query}%")
-                              ->orWhere('company_name', 'like', "%{$query}%");
-                        })
-                        ->get();
-
-        // 2. Busca Negócios (Pelo título OU pelo nome do cliente)
-        $leads = Lead::where('user_id', $userId)
-                     ->where(function($q) use ($query) {
-                         $q->where('title', 'like', "%{$query}%") // Procura no título
-                           ->orWhereHas('client', function($subQuery) use ($query) {
-                               $subQuery->where('name', 'like', "%{$query}%"); // Procura no nome do cliente dono do lead
-                           });
-                     })
-                     ->with('client')
-                     ->get();
-        return view('search.results', compact('clients', 'leads', 'query'));
+        return view('dashboard', compact(
+            'totalClientes',
+            'negociosAbertos',
+            'totalVendido',
+            'taxaConversao',
+            'ticketMedio',
+            'meses',
+            'valores',
+            'distribuicaoFunil'
+        ));
     }
 }
