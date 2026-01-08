@@ -9,7 +9,19 @@ class Lead extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'client_id', 'title', 'value', 'status', 'stage'];
+    protected $fillable = [
+        'user_id', 
+        'client_id', 
+        'title', 
+        'value', 
+        'status', 
+        'stage',
+        // Novos campos:
+        'cep',
+        'address',
+        'city',
+        'state'
+    ];
 
     // --- ADICIONE ISSO AQUI EMBAIXO ---
     

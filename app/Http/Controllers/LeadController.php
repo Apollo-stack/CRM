@@ -43,7 +43,7 @@ class LeadController extends Controller
     {
         $request->validate([
             'title' => 'required',
-            'client_id' => 'required|exists:clients,id', // Garante que o cliente existe
+            'client_id' => 'required|exists:clients,id',
         ]);
 
         \App\Models\Lead::create([
@@ -51,11 +51,16 @@ class LeadController extends Controller
             'client_id' => $request->client_id,
             'title' => $request->title,
             'value' => $request->value ?? 0,
-            'status' => 'new', // Todo negócio começa como 'novo'
+            'status' => 'new',
+            
+            // Salvando o endereço
+            'cep' => $request->cep,
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
         ]);
 
-        // Redireciona para onde você quiser (por enquanto vamos voltar pra lista de clientes ou criar uma de leads depois)
-        return redirect()->route('clients.index')->with('success', 'Negócio criado com sucesso!');
+        return redirect()->route('leads.index')->with('success', 'Negócio criado com sucesso!');
     }
 
     /**
@@ -85,27 +90,28 @@ class LeadController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        $lead = \App\Models\Lead::where('user_id', auth()->id())->findOrFail($id);
-
-        // Se o request tiver 'status', é aquela mudança rápida de kanban/botões
-        if ($request->has('status')) {
-            $lead->status = $request->status;
-            $lead->save();
-            return back();
-        }
-
-        // Se não, é uma edição completa do formulário
         $request->validate([
             'title' => 'required',
-            'value' => 'numeric',
-            'client_id' => 'required'
+            'client_id' => 'required|exists:clients,id',
         ]);
 
-        $lead->update($request->only(['title', 'value', 'client_id']));
+        \App\Models\Lead::create([
+            'user_id' => auth()->id(),
+            'client_id' => $request->client_id,
+            'title' => $request->title,
+            'value' => $request->value ?? 0,
+            'status' => 'new',
+            
+            // Salvando o endereço
+            'cep' => $request->cep,
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
+        ]);
 
-        return redirect()->route('leads.show', $lead->id)->with('success', 'Negócio atualizado!');
+        return redirect()->route('leads.index')->with('success', 'Negócio criado com sucesso!');
     }
 
     /**

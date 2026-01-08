@@ -13,11 +13,9 @@
                     <form action="{{ route('leads.store') }}" method="POST">
                         @csrf 
 
-                        {{-- Selecionar o Cliente --}}
                         <div class="mb-4">
-                            <label for="client_id" class="block text-sm font-medium text-gray-700">Cliente</label>
-                            <select name="client_id" id="client_id" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <x-input-label for="client_id" :value="__('Cliente')" />
+                            <select name="client_id" id="client_id" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                                 <option value="">Selecione um cliente...</option>
                                 @foreach($clients as $client)
                                     <option value="{{ $client->id }}">{{ $client->name }}</option>
@@ -25,52 +23,71 @@
                             </select>
                         </div>
 
-                        {{-- Título do Negócio --}}
                         <div class="mb-4">
-                            <label for="title" class="block text-sm font-medium text-gray-700">Título do Negócio</label>
-                            <input type="text" name="title" id="title" placeholder="Ex: Venda de Consultoria" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <x-input-label for="title" :value="__('Título do Negócio')" />
+                            <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title')" required />
                         </div>
 
-                        {{-- Valor --}}
                         <div class="mb-4">
-                            <label for="value" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
-                            <input type="number" step="0.01" name="value" id="value"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <x-input-label for="value" :value="__('Valor (R$)')" />
+                            <x-text-input id="value" class="block mt-1 w-full" type="number" step="0.01" name="value" :value="old('value')" />
                         </div>
 
-                        {{-- BLOCO DE ENDEREÇO --}}
-                        <div class="border-t pt-4 mt-4">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Endereço</h3>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700">CEP</label>
-                                    <input type="text" name="cep" value="{{ old('cep', $client->cep ?? '') }}"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <div class="mt-6 border-t pt-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Endereço de Instalação/Entrega</h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <x-input-label for="cep" :value="__('CEP')" />
+                                    <x-text-input id="cep" class="block mt-1 w-full bg-gray-50" type="text" name="cep" />
                                 </div>
-
-                                <div class="mb-4 col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700">Cidade/UF</label>
-                                    <div class="flex gap-2">
-                                        <input type="text" name="city" placeholder="Cidade" value="{{ old('city', $client->city ?? '') }}"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                        <input type="text" name="state" placeholder="UF" value="{{ old('state', $client->state ?? '') }}"
-                                            class="mt-1 block w-16 rounded-md border-gray-300 shadow-sm">
-                                    </div>
+                                <div>
+                                    <x-input-label for="address" :value="__('Endereço')" />
+                                    <x-text-input id="address" class="block mt-1 w-full bg-gray-50" type="text" name="address" />
                                 </div>
-
-                                <div class="mb-4 col-span-3">
-                                    <label class="block text-sm font-medium text-gray-700">Endereço Completo</label>
-                                    <input type="text" name="address" value="{{ old('address', $client->address ?? '') }}"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <div>
+                                    <x-input-label for="city" :value="__('Cidade')" />
+                                    <x-text-input id="city" class="block mt-1 w-full bg-gray-50" type="text" name="city" />
+                                </div>
+                                <div>
+                                    <x-input-label for="state" :value="__('Estado')" />
+                                    <x-text-input id="state" class="block mt-1 w-full bg-gray-50" type="text" name="state" />
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            Criar Negócio
-                        </button>
+                        <div class="mt-6">
+                            <x-primary-button>
+                                {{ __('Criar Negócio') }}
+                            </x-primary-button>
+                        </div>
+
+                        <script>
+                            document.getElementById('client_id').addEventListener('change', function() {
+                                var clientId = this.value;
+                                
+                                if (clientId) {
+                                    // Busca os dados na rota que criamos antes
+                                    fetch(`/clientes/${clientId}/endereco`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            // Preenche os inputs automaticamente
+                                            // Nota: 'data.address' depende de como você retorna no ClientController
+                                            document.getElementById('cep').value = data.cep || '';
+                                            document.getElementById('address').value = data.address || data.endereco || ''; 
+                                            document.getElementById('city').value = data.city || data.cidade || '';
+                                            document.getElementById('state').value = data.state || data.estado || '';
+                                        })
+                                        .catch(error => console.error('Erro ao buscar endereço:', error));
+                                } else {
+                                    // Limpa se não tiver cliente
+                                    document.getElementById('cep').value = '';
+                                    document.getElementById('address').value = '';
+                                    document.getElementById('city').value = '';
+                                    document.getElementById('state').value = '';
+                                }
+                            });
+                        </script>
                     </form>
 
                 </div>
