@@ -24,13 +24,15 @@
                         </div>
 
                         <div class="mb-4">
-                            <x-input-label for="title" :value="__('Título do Negócio')" />
-                            <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title')" required />
+                            <label for="title" class="block text-sm font-medium text-gray-700">Título do Negócio</label>
+                            <input type="text" name="title" id="title" value="{{ old('title') }}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
                         </div>
 
                         <div class="mb-4">
-                            <x-input-label for="value" :value="__('Valor (R$)')" />
-                            <x-text-input id="value" class="block mt-1 w-full" type="number" step="0.01" name="value" :value="old('value')" />
+                            <label for="value" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
+                            <input type="number" step="0.01" name="value" id="value" value="{{ old('value') }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
                         </div>
 
                         <div class="mt-6 border-t pt-4">
@@ -38,24 +40,30 @@
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <x-input-label for="cep" :value="__('CEP')" />
-                                    <x-text-input id="cep" class="block mt-1 w-full bg-gray-50" type="text" name="cep" />
+                                    <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
+                                    <input type="text" name="cep" id="cep" placeholder="00000-000"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
                                 </div>
+
                                 <div>
-                                    <x-input-label for="address" :value="__('Endereço')" />
-                                    <x-text-input id="address" class="block mt-1 w-full bg-gray-50" type="text" name="address" />
+                                    <label for="address" class="block text-sm font-medium text-gray-700">Endereço</label>
+                                    <input type="text" name="address" id="address" placeholder="Rua, Número..."
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
                                 </div>
+
                                 <div>
-                                    <x-input-label for="city" :value="__('Cidade')" />
-                                    <x-text-input id="city" class="block mt-1 w-full bg-gray-50" type="text" name="city" />
+                                    <label for="city" class="block text-sm font-medium text-gray-700">Cidade</label>
+                                    <input type="text" name="city" id="city"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
                                 </div>
+
                                 <div>
-                                    <x-input-label for="state" :value="__('Estado')" />
-                                    <x-text-input id="state" class="block mt-1 w-full bg-gray-50" type="text" name="state" />
+                                    <label for="state" class="block text-sm font-medium text-gray-700">Estado</label>
+                                    <input type="text" name="state" id="state" maxlength="2"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white">
                                 </div>
                             </div>
                         </div>
-
                         <div class="mt-6">
                             <x-primary-button>
                                 {{ __('Criar Negócio') }}
