@@ -9,13 +9,50 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Busca os clientes do usuário logado (ordenado pelo mais recente)
-        $clients = \App\Models\Client::where('user_id', auth()->id())->latest()->get();
+        // Inicia a query
+        $query = Client::query();
+
+        // ===== BUSCA GLOBAL =====
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('company', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // ===== FILTRO POR EMPRESA =====
+        if ($request->filled('company')) {
+            $query->where('company', 'like', "%{$request->company}%");
+        }
+
+        // ===== ORDENAÇÃO =====
+        $orderBy = $request->get('order_by', 'name'); // padrão: nome
+        $orderDirection = $request->get('order_direction', 'asc'); // padrão: crescente
         
-        // 2. Entrega a variável $clients para a View
-        return view('clients.index', compact('clients'));
+        $query->orderBy($orderBy, $orderDirection);
+
+        // ===== PAGINAÇÃO (15 por página) =====
+        $clients = $query->paginate(15)->appends($request->all());
+
+        // ===== BUSCAR ÚLTIMA INTERAÇÃO DE CADA CLIENTE =====
+        foreach ($clients as $client) {
+            // Pega a última nota/interação relacionada aos leads deste cliente
+            $ultimaInteracao = \App\Models\Note::whereHas('lead', function($q) use ($client) {
+                $q->where('client_id', $client->id);
+            })->latest()->first();
+            
+            $client->ultima_interacao = $ultimaInteracao ? $ultimaInteracao->created_at : null;
+        }
+
+        // Pegar lista única de empresas para o filtro
+        $empresas = Client::distinct()->pluck('company')->filter()->sort();
+
+        return view('clients.index', compact('clients', 'empresas'));
     }
 
     /**
