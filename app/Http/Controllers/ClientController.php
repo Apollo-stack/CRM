@@ -124,7 +124,7 @@ class ClientController extends Controller
     public function obterDadosJson($id)
     {
         // Busca o cliente ou falha se não existir
-        $cliente = \App\Models\Cliente::findOrFail($id);
+        $cliente = \App\Models\Client::findOrFail($id);
 
         // Retorna os dados como JSON para o Javascript ler
         return response()->json([
@@ -138,7 +138,7 @@ class ClientController extends Controller
     public function buscaEndereco($id)
     {
         // 1. Tenta achar o cliente
-        $cliente = \App\Models\Cliente::find($id);
+        $cliente = \App\Models\Client::find($id);
 
         // 2. Se não achar, devolve erro
         if (!$cliente) {
@@ -148,11 +148,11 @@ class ClientController extends Controller
         // 3. Devolve os dados bonitinhos
         return response()->json([
             'cep' => $cliente->cep,
-            'endereco' => $cliente->endereco,
-            'numero' => $cliente->numero,
-            'bairro' => $cliente->bairro,
-            'cidade' => $cliente->cidade,
-            'estado' => $cliente->estado, // ou 'uf', confira como está no seu banco
+            'endereco' => $cliente->address,
+            'numero' => $cliente->number,
+            'bairro' => $cliente->neighborhood,
+            'cidade' => $cliente->city,
+            'estado' => $cliente->state, // ou 'uf', confira como está no seu banco
         ]);
     }
 }

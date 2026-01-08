@@ -24,5 +24,5 @@ Route::resource('leads', LeadController::class)->middleware(['auth']);
 Route::post('/leads/{id}/notes', [App\Http\Controllers\LeadController::class, 'storeNote'])->name('leads.notes.store');
 Route::get('/search', [App\Http\Controllers\DashboardController::class, 'search'])->name('global.search');
 // Rota para buscar dados do cliente via AJAX
-Route::get('/clientes/{id}/json', [App\Http\Controllers\ClienteController::class, 'obterDadosJson']);
-Route::get('/clientes/{id}/endereco', [App\Http\Controllers\ClienteController::class, 'buscaEndereco']);
+Route::get('/clientes/{id}/json', [App\Http\Controllers\ClientController::class, 'obterDadosJson']);
+Route::get('/clientes/{id}/endereco', [App\Http\Controllers\ClientController::class, 'buscaEndereco']);
