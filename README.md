@@ -32,42 +32,4 @@ php artisan key:generate
 php artisan migrate
 php artisan serve
 ```
-```
 
----
-
-### **2. Exportar Relatórios (MUITO VALORIZADO)**
-Adiciona botão para exportar dados em Excel/PDF. Isso impressiona MUITO.
-
-**Onde adicionar:**
-- No dashboard → Exportar relatório mensal
-- Na lista de clientes → Exportar lista em Excel
-- No pipeline → Exportar negócios por status
-
-**Biblioteca sugerida:** `maatwebsite/excel` para Excel, `barryvdh/laravel-dompdf` para PDF
-
----
-
-### **3. Drag & Drop no Pipeline (WOW Factor)**
-Ao invés de clicar nos botões, **arrastar** os cards entre as colunas. Isso deixa o CRM muito mais profissional.
-
-**Biblioteca sugerida:** `SortableJS` ou `dragula.js`
-
----
-
-### **4. Notificações/Lembretes**
-Sistema simples de lembretes:
-- "Ligar pro cliente X amanhã"
-- "Follow-up pendente há 3 dias"
-- Badge com contador no menu
-
----
-
-## 💼 MELHORIAS TÉCNICAS PARA PORTFÓLIO (Prioridade MÉDIA)
-
-### **5. API REST**
-Cria endpoints da API pra mostrar que você sabe trabalhar com:
-```
-GET /api/clients
-GET /api/leads
-POST /api/leads
