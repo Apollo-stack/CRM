@@ -13,8 +13,10 @@
     </div>
 
     {{-- Nome do Cliente --}}
-    <p class="text-xs text-gray-500 dark:text-gray-300 mb-2">{{ $lead->client->name }}</p>
-
+    <p class="text-xs text-gray-500 dark:text-gray-300 mb-2">
+        {{ $lead->client ? $lead->client->name : 'Cliente não encontrado' }}
+    </p>
+    
     {{-- Valor e Data --}}
     <div class="flex justify-between items-center mt-3">
         <span class="text-sm font-bold text-gray-700 dark:text-gray-200">

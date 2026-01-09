@@ -1,172 +1,202 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Detalhes do Negócio #{{ $lead->id }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            {{-- Cartão Principal --}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="text-2xl font-bold mb-2">{{ $lead->title }}</h3>
-                                <a href="{{ route('leads.edit', $lead->id) }}" class="text-sm text-blue-500 hover:underline mb-2">(Editar)</a>
-                             </div>
-                            <p class="text-gray-500">Cliente: <span class="font-bold text-gray-800">{{ $lead->client->name }}</span></p>
-                            <p class="text-gray-500">Empresa: {{ $lead->client->company_name ?? 'Não informada' }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm text-gray-500">Valor Estimado</p>
-                            <p class="text-3xl font-bold text-green-600">R$ {{ number_format($lead->value, 2, ',', '.') }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Área de Ações (Mudança de Status) --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {{-- Coluna da Esquerda: Status Atual --}}
-                <div class="bg-white p-6 shadow-sm rounded-lg">
-                    <h4 class="font-bold text-gray-700 mb-4">Status Atual</h4>
-                    <span class="px-4 py-2 rounded-full text-white font-bold
-                        {{ $lead->status == 'won' ? 'bg-green-500' : ($lead->status == 'lost' ? 'bg-red-500' : 'bg-blue-500') }}">
-                        {{ strtoupper($lead->status) }}
-                    </span>
-                </div>
-
-                {{-- Coluna do Meio/Direita: Botões de Ação --}}
-                <div class="bg-white p-6 shadow-sm rounded-lg col-span-2">
-                    <h4 class="font-bold text-gray-700 mb-4">Mover Estágio</h4>
-                    <div class="flex gap-4">
-                        {{-- Botão para voltar pra negociação --}}
-                        <form action="{{ route('leads.update', $lead->id) }}" method="POST">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="status" value="negotiation">
-                            <button type="submit" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">
-                                Em Negociação
-                            </button>
-                        </form>
-
-                        {{-- Botão Ganho --}}
-                        <form action="{{ route('leads.update', $lead->id) }}" method="POST">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="status" value="won">
-                            <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-700 border border-green-300 px-4 py-2 rounded">
-                                Marcar como Ganho
-                            </button>
-                        </form>
-
-                        {{-- Botão Perdido --}}
-                        <form action="{{ route('leads.update', $lead->id) }}" method="POST">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="status" value="lost">
-                            <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 px-4 py-2 rounded">
-                                Marcar como Perdido
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-            </div>
-            
-            <div class="mt-6">
-                 <a href="{{ route('leads.index') }}" class="text-gray-500 hover:underline">← Voltar para lista</a>
-            </div>
-
-        </div>
-{{-- ÁREA DE HISTÓRICO / TIMELINE --}}
-        <div class="mt-8 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">Histórico do Negócio</h3>
-
-            <form action="{{ route('leads.notes.store', $lead->id) }}" method="POST" class="mb-8">
-            @csrf
-
-            <div class="flex gap-2 mb-2">
-                {{-- Seletor de Tipo com Ícones (Truque visual com Radio Buttons) --}}
-                <label class="cursor-pointer">
-                    <input type="radio" name="type" value="call" class="peer sr-only">
-                    <span class="px-3 py-1 rounded-full border text-sm text-gray-500 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                        📞 Ligação
-                    </span>
-                </label>
-                <label class="cursor-pointer">
-                    <input type="radio" name="type" value="whatsapp" class="peer sr-only">
-                    <span class="px-3 py-1 rounded-full border text-sm text-gray-500 peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500">
-                        💬 WhatsApp
-                    </span>
-                </label>
-                <label class="cursor-pointer">
-                    <input type="radio" name="type" value="email" class="peer sr-only">
-                    <span class="px-3 py-1 rounded-full border text-sm text-gray-500 peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:border-yellow-500">
-                        📧 Email
-                    </span>
-                </label>
-                <label class="cursor-pointer">
-                    <input type="radio" name="type" value="meeting" class="peer sr-only">
-                    <span class="px-3 py-1 rounded-full border text-sm text-gray-500 peer-checked:bg-purple-500 peer-checked:text-white peer-checked:border-purple-500">
-                        🤝 Reunião
-                    </span>
-                </label>
-                <label class="cursor-pointer">
-                    <input type="radio" name="type" value="note" class="peer sr-only" checked>
-                    <span class="px-3 py-1 rounded-full border text-sm text-gray-500 peer-checked:bg-gray-500 peer-checked:text-white peer-checked:border-gray-500">
-                        📝 Nota
-                    </span>
-                </label>
-            </div>
-
-            <textarea name="content" rows="3" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Detalhes da interação..."></textarea>
-
-                <div class="mt-2 text-right">
-                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-                        Registrar
-                    </button>
-                </div>
-            </form>
-
-            {{-- Lista de Notas --}}
-            <div class="space-y-6">
-                 @foreach($lead->notes as $note)
-                    <div class="flex gap-4">
-                        {{-- Ícone Dinâmico baseado no Tipo --}}
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm
-                            @switch($note->type)
-                                @case('call') bg-blue-500 @break
-                                @case('whatsapp') bg-green-500 @break
-                                @case('email') bg-yellow-500 @break
-                                @case('meeting') bg-purple-500 @break
-                                @default bg-gray-500
-                            @endswitch
-                        ">
-                            @switch($note->type)
-                                @case('call') 📞 @break
-                                @case('whatsapp') 💬 @break
-                                @case('email') 📧 @break
-                                @case('meeting') 🤝 @break
-                                @default 📝
-                            @endswitch
-                        </div>
-                            
-                        <div class="flex-grow bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-gray-800 dark:text-gray-200">
-                                    {{ $note->user->name }}
-                                    <span class="text-xs font-normal text-gray-500 ml-2">via {{ ucfirst($note->type) }}</span>
-                                </span>
-                                <span class="text-xs text-gray-500">{{ $note->created_at->format('d/m/Y H:i') }}</span>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-300 whitespace-pre-line">{{ $note->content }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-{{-- FIM DA TIMELINE --}}
+@section('content')
+<div class="container mx-auto px-4 py-6">
+    
+    {{-- CABEÇALHO --}}
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">{{ $lead->title }}</h1>
+        <a href="{{ route('leads.index') }}" class="text-gray-400 hover:text-white">
+            ← Voltar para lista
+        </a>
     </div>
-</x-app-layout>
+
+    {{-- INFORMAÇÕES DO NEGÓCIO --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        
+        {{-- CARD: Informações Básicas --}}
+        <div class="bg-gray-800 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-white mb-4">Informações Básicas</h3>
+            <div class="space-y-3">
+                <div>
+                    <span class="text-gray-400 text-sm">Cliente:</span>
+                    <p class="text-white font-medium">{{ $lead->client ? $lead->client->name : 'Cliente não encontrado' }}</p>
+                    @if($lead->client)
+                        <p class="text-gray-400 text-sm">{{ $lead->client->company_name ?? 'Particular' }}</p>
+                    @endif
+                </div>
+                <div>
+                    <span class="text-gray-400 text-sm">Valor Estimado:</span>
+                    <p class="text-2xl font-bold text-green-400">R$ {{ number_format($lead->value, 2, ',', '.') }}</p>
+                </div>
+                <div>
+                    <span class="text-gray-400 text-sm">Data de Criação:</span>
+                    <p class="text-white">{{ $lead->created_at->format('d/m/Y H:i') }}</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- CARD: Status e Ações --}}
+        <div class="bg-gray-800 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-white mb-4">Status Atual</h3>
+            
+            <div class="mb-6">
+                @if($lead->status == 'new')
+                    <span class="inline-block bg-gray-600 text-white px-4 py-2 rounded-lg text-lg font-bold">NOVO</span>
+                @elseif($lead->status == 'negotiation')
+                    <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-lg font-bold">EM NEGOCIAÇÃO</span>
+                @elseif($lead->status == 'won')
+                    <span class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">GANHO 🎉</span>
+                @elseif($lead->status == 'lost')
+                    <span class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg text-lg font-bold">PERDIDO</span>
+                @endif
+            </div>
+
+            <h4 class="text-white font-bold mb-3">Mover Estágio</h4>
+            <div class="space-y-2">
+                @if($lead->status != 'negotiation' && $lead->status != 'won' && $lead->status != 'lost')
+                    <form action="{{ route('leads.update', $lead->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" name="status" value="negotiation" 
+                                class="w-full bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 border border-blue-200 font-medium">
+                            Em Negociação
+                        </button>
+                    </form>
+                @endif
+
+                @if($lead->status == 'negotiation')
+                    <form action="{{ route('leads.update', $lead->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" name="status" value="won" 
+                                class="w-full bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 border border-green-200 font-medium">
+                            Marcar como Ganho
+                        </button>
+                    </form>
+                    
+                    <form action="{{ route('leads.update', $lead->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" name="status" value="lost" 
+                                class="w-full bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 border border-red-200 font-medium">
+                            Marcar como Perdido
+                        </button>
+                    </form>
+                @endif
+
+                <a href="{{ route('leads.edit', $lead->id) }}" 
+                   class="block w-full bg-gray-700 text-white text-center px-4 py-2 rounded-lg hover:bg-gray-600 font-medium">
+                    Editar Informações
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- HISTÓRICO DO NEGÓCIO --}}
+    <div class="bg-gray-800 rounded-lg p-6">
+        <h3 class="text-xl font-bold text-white mb-4">Histórico do Negócio</h3>
+
+        {{-- FORMULÁRIO PARA ADICIONAR INTERAÇÃO --}}
+        <form action="{{ route('leads.notes.store', $lead->id) }}" method="POST" class="mb-6">
+            @csrf
+            <div class="flex gap-2 mb-3">
+                <button type="button" onclick="setType('call')" 
+                        class="interaction-btn px-3 py-1 rounded-lg text-sm bg-gray-700 text-white hover:bg-red-600">
+                    📞 Ligação
+                </button>
+                <button type="button" onclick="setType('whatsapp')" 
+                        class="interaction-btn px-3 py-1 rounded-lg text-sm bg-gray-700 text-white hover:bg-green-600">
+                    💬 WhatsApp
+                </button>
+                <button type="button" onclick="setType('email')" 
+                        class="interaction-btn px-3 py-1 rounded-lg text-sm bg-gray-700 text-white hover:bg-blue-600">
+                    📧 Email
+                </button>
+                <button type="button" onclick="setType('meeting')" 
+                        class="interaction-btn px-3 py-1 rounded-lg text-sm bg-gray-700 text-white hover:bg-yellow-600">
+                    🤝 Reunião
+                </button>
+                <button type="button" onclick="setType('note')" 
+                        class="interaction-btn px-3 py-1 rounded-lg text-sm bg-gray-700 text-white hover:bg-purple-600">
+                    📝 Nota
+                </button>
+            </div>
+
+            <input type="hidden" name="type" id="interaction-type" value="note">
+            
+            <textarea name="content" 
+                      id="interaction-content"
+                      placeholder="Detalhes da interação..." 
+                      rows="3"
+                      required
+                      class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none mb-3"></textarea>
+            
+            <button type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium">
+                Registrar
+            </button>
+        </form>
+
+        {{-- LISTA DE INTERAÇÕES --}}
+        <div class="space-y-3">
+            @forelse($lead->notes()->latest()->get() as $note)
+                <div class="bg-gray-700 rounded-lg p-4 border-l-4 
+                    {{ $note->type == 'call' ? 'border-red-500' : '' }}
+                    {{ $note->type == 'whatsapp' ? 'border-green-500' : '' }}
+                    {{ $note->type == 'email' ? 'border-blue-500' : '' }}
+                    {{ $note->type == 'meeting' ? 'border-yellow-500' : '' }}
+                    {{ $note->type == 'note' ? 'border-purple-500' : '' }}">
+                    
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            @if($note->type == 'call') <span>📞</span>
+                            @elseif($note->type == 'whatsapp') <span>💬</span>
+                            @elseif($note->type == 'email') <span>📧</span>
+                            @elseif($note->type == 'meeting') <span>🤝</span>
+                            @else <span>📝</span>
+                            @endif
+                            
+                            <span class="text-gray-400 text-sm">
+                                {{ $note->user->name ?? 'Usuário' }} • 
+                                via {{ ucfirst($note->type) }}
+                            </span>
+                        </div>
+                        <span class="text-gray-500 text-xs">
+                            {{ $note->created_at->format('d/m/Y H:i') }}
+                        </span>
+                    </div>
+                    
+                    <p class="text-white">{{ $note->content }}</p>
+                </div>
+            @empty
+                <p class="text-gray-400 text-center py-8">Nenhuma interação registrada ainda.</p>
+            @endforelse
+        </div>
+    </div>
+
+</div>
+
+<script>
+function setType(type) {
+    document.getElementById('interaction-type').value = type;
+    
+    // Atualiza o placeholder
+    const content = document.getElementById('interaction-content');
+    const placeholders = {
+        'call': 'Ex: Cliente interessado em orçamento, pediu prazo de entrega...',
+        'whatsapp': 'Ex: Enviou mensagem confirmando interesse...',
+        'email': 'Ex: Enviado proposta comercial...',
+        'meeting': 'Ex: Reunião realizada, cliente pediu 10% de desconto...',
+        'note': 'Ex: Cliente está analisando a proposta...'
+    };
+    content.placeholder = placeholders[type] || 'Detalhes da interação...';
+    
+    // Visual feedback
+    document.querySelectorAll('.interaction-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-white');
+    });
+    event.target.classList.add('ring-2', 'ring-white');
+}
+</script>
+@endsection

@@ -1,110 +1,114 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Novo Cliente') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    {{-- O formulário aponta para a rota 'store' que salva os dados --}}
-                    <form action="{{ route('clients.store') }}" method="POST">
-                        @csrf {{-- Proteção obrigatória do Laravel contra ataques --}}
+@section('content')
+<div class="container mx-auto px-4 py-6 max-w-3xl">
+    
+    {{-- CABEÇALHO --}}
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Novo Cliente</h1>
+        <a href="{{ route('clients.index') }}" class="text-gray-400 hover:text-white">
+            ← Voltar
+        </a>
+    </div>
 
-                        {{-- Nome --}}
-                        <div class="mb-4">
-                            <label for="name" class="block text-sm font-medium text-gray-700">Nome do Cliente</label>
-                            <input type="text" name="name" id="name" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+    {{-- FORMULÁRIO --}}
+    <form action="{{ route('clients.store') }}" method="POST" class="bg-gray-800 rounded-lg p-6">
+        @csrf
 
-                        {{-- Email --}}
-                        <div class="mb-4">
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" name="email" id="email"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+        {{-- Nome --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Nome Completo *</label>
+            <input type="text" 
+                   name="name" 
+                   value="{{ old('name') }}"
+                   placeholder="João da Silva"
+                   required
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            @error('name')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
+            @enderror
+        </div>
 
-                        {{-- Telefone --}}
-                        <div class="mb-4">
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Telefone</label>
-                            <input type="text" name="phone" id="phone"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+        {{-- Email --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Email *</label>
+            <input type="email" 
+                   name="email" 
+                   value="{{ old('email') }}"
+                   placeholder="joao@email.com"
+                   required
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            @error('email')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
+            @enderror
+        </div>
 
-                        {{-- Empresa --}}
-                        <div class="mb-4">
-                            <label for="company_name" class="block text-sm font-medium text-gray-700">Empresa</label>
-                            <input type="text" name="company_name" id="company_name"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+        {{-- Telefone --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Telefone</label>
+            <input type="text" 
+                   name="phone" 
+                   value="{{ old('phone') }}"
+                   placeholder="(11) 99999-9999"
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
 
-                        <h3 class="text-lg font-medium text-gray-900 mt-6 mb-2">Endereço</h3>
+        {{-- Empresa --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Empresa</label>
+            <input type="text" 
+                   name="company_name" 
+                   value="{{ old('company_name') }}"
+                   placeholder="Nome da Empresa"
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            
-                            {{-- CEP --}}
-                            <div>
-                                <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
-                                <input type="text" name="cep" id="cep"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                            {{-- Endereço --}}
-                            <div>
-                                <label for="address" class="block text-sm font-medium text-gray-700">Endereço</label>
-                                <input type="text" name="address" id="address"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                            {{-- Cidade --}}
-                            <div>
-                                <label for="city" class="block text-sm font-medium text-gray-700">Cidade</label>
-                                <input type="text" name="city" id="city"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                            {{-- Estado --}}
-                            <div>
-                                <label for="state" class="block text-sm font-medium text-gray-700">Estado (UF)</label>
-                                <input type="text" name="state" id="state" maxlength="2"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                        </div>
-
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            Salvar Cliente
-                        </button>
-                    </form>
-
+        {{-- ENDEREÇO --}}
+        <div class="border-t border-gray-700 pt-4 mt-6 mb-4">
+            <h3 class="text-white font-bold mb-3">Endereço (Opcional)</h3>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">CEP</label>
+                    <input type="text" name="cep" value="{{ old('cep') }}"
+                           placeholder="12345-678"
+                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">Cidade</label>
+                    <input type="text" name="city" value="{{ old('city') }}"
+                           placeholder="São Paulo"
+                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
             </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-400 text-sm mb-1">Endereço</label>
+                <input type="text" name="address" value="{{ old('address') }}"
+                       placeholder="Rua, número, complemento"
+                       class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <div>
+                <label class="block text-gray-400 text-sm mb-1">Estado (UF)</label>
+                <input type="text" name="state" value="{{ old('state') }}" maxlength="2"
+                       placeholder="SP"
+                       class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
         </div>
-    </div>
-    <script>
-        // Quando o campo de cliente (que tem id="cliente_id") mudar...
-        document.getElementById('cliente_id').addEventListener('change', function() {
-            
-            var idDoCliente = this.value;
 
-            // Se não tiver cliente selecionado, para por aqui
-            if (!idDoCliente) return;
+        {{-- BOTÕES --}}
+        <div class="flex gap-3 mt-6">
+            <button type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition">
+                Cadastrar Cliente
+            </button>
+            <a href="{{ route('clients.index') }}" 
+               class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition">
+                Cancelar
+            </a>
+        </div>
+    </form>
 
-            // Chama a rota que criamos no Passo 1
-            fetch('/clientes/' + idDoCliente + '/endereco')
-                .then(response => response.json())
-                .then(data => {
-                    // Aqui a mágica acontece: preenche os campos sozinhos
-                    // Ajuste os IDs ('cep', 'endereco') conforme os seus inputs
-                    if(document.getElementById('cep')) document.getElementById('cep').value = data.cep || '';
-                    if(document.getElementById('endereco')) document.getElementById('endereco').value = data.endereco || '';
-                    if(document.getElementById('numero')) document.getElementById('numero').value = data.numero || '';
-                    if(document.getElementById('cidade')) document.getElementById('cidade').value = data.cidade || '';
-                });
-        });
-    </script>
-</x-app-layout>
+</div>
+@endsection

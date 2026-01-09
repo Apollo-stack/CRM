@@ -99,21 +99,20 @@ class ClientController extends Controller
      */
     public function show(string $id)
     {
-        // Busca o cliente
-        $client = \App\Models\Client::where('user_id', auth()->id())->findOrFail($id);
-
-        // Busca o histórico de vendas (Negócios ganhos)
+        $client = Client::where('user_id', auth()->id())->findOrFail($id);
+        
+        // Busca as vendas ganhas (WON) deste cliente
         $salesHistory = \App\Models\Lead::where('client_id', $client->id)
-                                        ->where('status', 'won')
-                                        ->latest()
-                                        ->get();
-
-        // Busca negócios em aberto (pra você ver o que está rolando agora)
+            ->where('status', 'won')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+        
+        // Busca as negociações em aberto (NEW ou NEGOTIATION)
         $openLeads = \App\Models\Lead::where('client_id', $client->id)
-                                     ->whereIn('status', ['new', 'negotiation'])
-                                     ->latest()
-                                     ->get();
-
+            ->whereIn('status', ['new', 'negotiation'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
         return view('clients.show', compact('client', 'salesHistory', 'openLeads'));
     }
 

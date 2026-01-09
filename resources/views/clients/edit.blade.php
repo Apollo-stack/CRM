@@ -1,86 +1,107 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Editar Cliente') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    {{-- MUDANÇA 1: A Rota aponta para 'update' e passamos o ID do cliente --}}
-                    <form action="{{ route('clients.update', $client->id) }}" method="POST">
-                        @csrf
-                        @method('PUT') {{-- MUDANÇA 2: Importante! HTML só aceita GET/POST, isso 'finge' um PUT --}}
+@section('content')
+<div class="container mx-auto px-4 py-6 max-w-3xl">
+    
+    {{-- CABEÇALHO --}}
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Editar Cliente</h1>
+        <a href="{{ route('clients.show', $client->id) }}" class="text-gray-400 hover:text-white">
+            ← Voltar
+        </a>
+    </div>
 
-                        <div class="mb-4">
-                            <label for="name" class="block text-sm font-medium text-gray-700">Nome do Cliente</label>
-                            {{-- MUDANÇA 3: Adicionamos o 'value' para vir preenchido --}}
-                            <input type="text" name="name" id="name" value="{{ $client->name }}" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+    {{-- FORMULÁRIO --}}
+    <form action="{{ route('clients.update', $client->id) }}" method="POST" class="bg-gray-800 rounded-lg p-6">
+        @csrf
+        @method('PUT')
 
-                        <div class="mb-4">
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" name="email" id="email" value="{{ $client->email }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+        {{-- Nome --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Nome Completo *</label>
+            <input type="text" 
+                   name="name" 
+                   value="{{ old('name', $client->name) }}"
+                   required
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            @error('name')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
+            @enderror
+        </div>
 
-                        <div class="mb-4">
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Telefone</label>
-                            <input type="text" name="phone" id="phone" value="{{ $client->phone }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+        {{-- Email --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Email *</label>
+            <input type="email" 
+                   name="email" 
+                   value="{{ old('email', $client->email) }}"
+                   required
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            @error('email')
+                <span class="text-red-500 text-sm">{{ $message }}</span>
+            @enderror
+        </div>
 
-                        <div class="mb-4">
-                            <label for="company_name" class="block text-sm font-medium text-gray-700">Empresa</label>
-                            <input type="text" name="company_name" id="company_name" value="{{ $client->company_name }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        </div>
+        {{-- Telefone --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Telefone</label>
+            <input type="text" 
+                   name="phone" 
+                   value="{{ old('phone', $client->phone) }}"
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
 
-                        <h3 class="text-lg font-medium text-gray-900 mt-6 mb-2">Endereço</h3>
+        {{-- Empresa --}}
+        <div class="mb-4">
+            <label class="block text-white font-medium mb-2">Empresa</label>
+            <input type="text" 
+                   name="company_name" 
+                   value="{{ old('company_name', $client->company_name) }}"
+                   class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            
-                            {{-- CEP --}}
-                            <div>
-                                <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
-                                <input type="text" name="cep" id="cep" value="{{ $client->cep }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                            {{-- Endereço --}}
-                            <div>
-                                <label for="address" class="block text-sm font-medium text-gray-700">Endereço</label>
-                                <input type="text" name="address" id="address" value="{{ $client->address }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                            {{-- Cidade --}}
-                            <div>
-                                <label for="city" class="block text-sm font-medium text-gray-700">Cidade</label>
-                                <input type="text" name="city" id="city" value="{{ $client->city }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                            {{-- Estado --}}
-                            <div>
-                                <label for="state" class="block text-sm font-medium text-gray-700">Estado (UF)</label>
-                                <input type="text" name="state" id="state" maxlength="2" value="{{ $client->state }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            </div>
-
-                        </div>    
-
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            Atualizar Cliente
-                        </button>
-                    </form>
-
+        {{-- ENDEREÇO --}}
+        <div class="border-t border-gray-700 pt-4 mt-6 mb-4">
+            <h3 class="text-white font-bold mb-3">Endereço</h3>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">CEP</label>
+                    <input type="text" name="cep" value="{{ old('cep', $client->cep) }}"
+                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">Cidade</label>
+                    <input type="text" name="city" value="{{ old('city', $client->city) }}"
+                           class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
             </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-400 text-sm mb-1">Endereço</label>
+                <input type="text" name="address" value="{{ old('address', $client->address) }}"
+                       class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <div>
+                <label class="block text-gray-400 text-sm mb-1">Estado (UF)</label>
+                <input type="text" name="state" value="{{ old('state', $client->state) }}" maxlength="2"
+                       class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
         </div>
-    </div>
-</x-app-layout>
+
+        {{-- BOTÕES --}}
+        <div class="flex gap-3 mt-6">
+            <button type="submit" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition">
+                Salvar Alterações
+            </button>
+            <a href="{{ route('clients.show', $client->id) }}" 
+               class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition">
+                Cancelar
+            </a>
+        </div>
+    </form>
+
+</div>
+@endsection
