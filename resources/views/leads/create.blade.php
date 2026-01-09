@@ -105,4 +105,36 @@
     </form>
 
 </div>
+
+{{-- ADICIONA ESTE SCRIPT AQUI --}}
+<script>
+// Dados dos clientes em JSON
+const clientsData = @json($clients);
+
+// Quando o select de cliente mudar
+document.querySelector('select[name="client_id"]').addEventListener('change', function() {
+    const clientId = this.value;
+    
+    // Se não selecionou ninguém, limpa os campos
+    if (!clientId) {
+        document.querySelector('input[name="cep"]').value = '';
+        document.querySelector('input[name="city"]').value = '';
+        document.querySelector('input[name="address"]').value = '';
+        document.querySelector('input[name="state"]').value = '';
+        return;
+    }
+    
+    // Busca o cliente selecionado
+    const client = clientsData.find(c => c.id == clientId);
+    
+    if (client) {
+        // Preenche os campos com os dados do cliente
+        document.querySelector('input[name="cep"]').value = client.cep || '';
+        document.querySelector('input[name="city"]').value = client.city || '';
+        document.querySelector('input[name="address"]').value = client.address || '';
+        document.querySelector('input[name="state"]').value = client.state || '';
+    }
+});
+</script>
+
 @endsection
