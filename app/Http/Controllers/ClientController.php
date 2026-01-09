@@ -35,8 +35,20 @@ class ClientController extends Controller
         // ===== ORDENAÇÃO =====
         $orderBy = $request->get('order_by', 'name'); // padrão: nome
         $orderDirection = $request->get('order_direction', 'asc'); // padrão: crescente
-        
-        $query->orderBy($orderBy, $orderDirection);
+
+        // Campos permitidos para ordenação (mapeia "company" para "company_name")
+        $allowedOrderFields = [
+            'name' => 'name',
+            'company' => 'company_name',
+            'company_name' => 'company_name',
+            'created_at' => 'created_at',
+            'email' => 'email'
+        ];
+
+        // Se o campo não for permitido, usa 'name' como padrão
+        $orderByField = $allowedOrderFields[$orderBy] ?? 'name';
+
+        $query->orderBy($orderByField, $orderDirection);
 
         // ===== PAGINAÇÃO (15 por página) =====
         $clients = $query->paginate(15)->appends($request->all());

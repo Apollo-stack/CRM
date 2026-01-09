@@ -48,7 +48,7 @@
                         <select name="order_by" 
                                 class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
                             <option value="name" {{ request('order_by') == 'name' ? 'selected' : '' }}>Nome</option>
-                            <option value="company" {{ request('order_by') == 'company' ? 'selected' : '' }}>Empresa</option>
+                            <option value="company_name" {{ request('order_by') == 'company_name' ? 'selected' : '' }}>Empresa</option>
                             <option value="created_at" {{ request('order_by') == 'created_at' ? 'selected' : '' }}>Data de Cadastro</option>
                         </select>
                     </div>
