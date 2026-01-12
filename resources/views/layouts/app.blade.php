@@ -107,5 +107,30 @@
             }
         }
         </script>
+        
+        {{-- Busca Global com Loading --}}
+        <form action="{{ route('global.search') }}" method="GET" class="flex-1 max-w-lg mx-auto px-6" id="search-form">
+            <div class="relative">
+                <input type="text" 
+                    name="q" 
+                    placeholder="Buscar cliente ou negócio..."
+                    class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 outline-none">
+                
+                {{-- Ícone de busca / Loading --}}
+                <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <svg id="search-icon" class="w-5 h-5 text-gray-400 hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <div id="search-loading" class="search-loading hidden"></div>
+                </button>
+            </div>
+        </form>
+
+        <script>
+        document.getElementById('search-form').addEventListener('submit', function() {
+            document.getElementById('search-icon').classList.add('hidden');
+            document.getElementById('search-loading').classList.remove('hidden');
+        });
+        </script>
     </body>
 </html>
