@@ -47,23 +47,27 @@
         <div class="flex gap-2">
             {{-- Botão: Mover para Negociação --}}
             @if($lead->status === 'new')
-                <form action="{{ route('leads.update', $lead->id) }}" method="POST">
+                <form action="{{ route('leads.update', $lead->id) }}" 
+                    method="POST"
+                    onsubmit="addButtonLoading(this.querySelector('button'), 'Movendo...')">
                     @csrf
                     @method('PUT')
                     <button type="submit" name="status" value="negotiation" 
-                        class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 border border-blue-200">
-                        Negociar &rarr;
+                            class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 border border-blue-200">
+                        Negociar →
                     </button>
                 </form>
             @endif
 
             {{-- Botão: Marcar como Ganho --}}
             @if($lead->status === 'negotiation')
-                <form action="{{ route('leads.update', $lead->id) }}" method="POST">
+                <form action="{{ route('leads.update', $lead->id) }}" 
+                    method="POST"
+                    onsubmit="addButtonLoading(this.querySelector('button'), 'Salvando...')">
                     @csrf
                     @method('PUT')
                     <button type="submit" name="status" value="won" 
-                        class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 border border-green-200">
+                            class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 border border-green-200">
                         Venda Feita! $
                     </button>
                 </form>
