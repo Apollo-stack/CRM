@@ -54,11 +54,15 @@
 
             <h4 class="text-white font-bold mb-3">Mover Estágio</h4>
             <div class="space-y-2">
+                
+                {{-- Botão: Em Negociação --}}
                 @if($lead->status != 'negotiation' && $lead->status != 'won' && $lead->status != 'lost')
                     <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <button type="submit" name="status" value="negotiation" 
+                        {{-- CORREÇÃO: Input Hidden adicionado --}}
+                        <input type="hidden" name="status" value="negotiation">
+                        <button type="submit" 
                                 class="w-full bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 border border-blue-200 font-medium">
                             Em Negociação
                         </button>
@@ -66,21 +70,40 @@
                 @endif
 
                 @if($lead->status == 'negotiation')
+                    {{-- Botão: Ganho --}}
                     <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <button type="submit" name="status" value="won" 
+                        {{-- CORREÇÃO: Input Hidden adicionado --}}
+                        <input type="hidden" name="status" value="won">
+                        <button type="submit" 
                                 class="w-full bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 border border-green-200 font-medium">
                             Marcar como Ganho
                         </button>
                     </form>
                     
+                    {{-- Botão: Perdido --}}
                     <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <button type="submit" name="status" value="lost" 
+                        {{-- CORREÇÃO: Input Hidden adicionado --}}
+                        <input type="hidden" name="status" value="lost">
+                        <button type="submit" 
                                 class="w-full bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 border border-red-200 font-medium">
                             Marcar como Perdido
+                        </button>
+                    </form>
+                @endif
+                
+                {{-- Botão: Reabrir (Voltar para Novo) --}}
+                @if($lead->status == 'lost' || $lead->status == 'won')
+                     <form action="{{ route('leads.update', $lead->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="status" value="new">
+                        <button type="submit" 
+                                class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-500 border border-gray-500 font-medium">
+                            Reabrir Negócio
                         </button>
                     </form>
                 @endif

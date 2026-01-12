@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Note;
 use Illuminate\Http\Request;
+use App\Models\Lead;
 
 class LeadController extends Controller
 {
@@ -93,8 +94,9 @@ class LeadController extends Controller
     {
         $lead = Lead::where('user_id', auth()->id())->findOrFail($id);
 
-        // Mudança rápida de status (botões do Kanban)
-        if ($request->has('status')) {
+        // CORREÇÃO: Só entra no "Modo Rápido" se tiver status E NÃO tiver title.
+        // Isso evita que o formulário de edição caia aqui por engano.
+        if ($request->has('status') && !$request->has('title')) {
             $lead->status = $request->status;
             $lead->save();
             

@@ -1,10 +1,9 @@
 @props(['lead'])
 
-{{-- 1. Mudamos de <a> para <div> para poder ter botões dentro --}}
 <div class="block bg-white dark:bg-gray-700 p-4 rounded shadow hover:shadow-md transition duration-200 border-l-4 
     {{ $lead->status == 'won' ? 'border-green-500' : ($lead->status == 'negotiation' ? 'border-blue-500' : 'border-gray-500') }}">
     
-    {{-- Título e Link para Ver Detalhes --}}
+    {{-- Título e Link --}}
     <div class="flex justify-between items-start mb-2">
         <a href="{{ route('leads.show', $lead->id) }}" class="font-bold text-gray-800 dark:text-white text-sm hover:underline hover:text-blue-600">
             {{ $lead->title }}
@@ -12,7 +11,7 @@
         <span class="text-xs text-gray-400">#{{ $lead->id }}</span>
     </div>
 
-    {{-- Nome do Cliente --}}
+    {{-- Cliente --}}
     <p class="text-xs text-gray-500 dark:text-gray-300 mb-2">
         {{ $lead->client ? $lead->client->name : 'Cliente não encontrado' }}
     </p>
@@ -22,37 +21,40 @@
         <span class="text-sm font-bold text-gray-700 dark:text-gray-200">
             R$ {{ number_format($lead->value, 2, ',', '.') }}
         </span>
-        
         <span class="text-[10px] text-gray-400">
             {{ $lead->created_at->format('d/m') }}
         </span>
     </div>
 
-    {{-- AREA DOS BOTÕES DE AÇÃO (Corrigido) --}}
+    {{-- AREA DOS BOTÕES DE AÇÃO --}}
     <div class="mt-3 flex justify-between items-center border-t pt-3 border-gray-100 dark:border-gray-700">
         
-        {{-- Botão: Voltar para Novo (Se não for 'new') --}}
+        {{-- Botão: Voltar para Novo --}}
         @if($lead->status !== 'new')
             <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <button type="submit" name="status" value="new" class="text-xs text-gray-400 hover:text-gray-600 underline">
+                {{-- CORREÇÃO: Input Hidden para garantir o envio --}}
+                <input type="hidden" name="status" value="new">
+                <button type="submit" class="text-xs text-gray-400 hover:text-gray-600 underline">
                     (Voltar)
                 </button>
             </form>
         @else
-            <div></div> {{-- Espaço vazio para alinhar --}}
+            <div></div>
         @endif
 
         <div class="flex gap-2">
             {{-- Botão: Mover para Negociação --}}
             @if($lead->status === 'new')
                 <form action="{{ route('leads.update', $lead->id) }}" 
-                    method="POST"
-                    onsubmit="addButtonLoading(this.querySelector('button'), 'Movendo...')">
+                      method="POST"
+                      onsubmit="addButtonLoading(this.querySelector('button'), 'Movendo...')">
                     @csrf
                     @method('PUT')
-                    <button type="submit" name="status" value="negotiation" 
+                    {{-- CORREÇÃO AQUI --}}
+                    <input type="hidden" name="status" value="negotiation">
+                    <button type="submit" 
                             class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 border border-blue-200">
                         Negociar →
                     </button>
@@ -62,11 +64,13 @@
             {{-- Botão: Marcar como Ganho --}}
             @if($lead->status === 'negotiation')
                 <form action="{{ route('leads.update', $lead->id) }}" 
-                    method="POST"
-                    onsubmit="addButtonLoading(this.querySelector('button'), 'Salvando...')">
+                      method="POST"
+                      onsubmit="addButtonLoading(this.querySelector('button'), 'Salvando...')">
                     @csrf
                     @method('PUT')
-                    <button type="submit" name="status" value="won" 
+                    {{-- CORREÇÃO AQUI --}}
+                    <input type="hidden" name="status" value="won">
+                    <button type="submit" 
                             class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 border border-green-200">
                         Venda Feita! $
                     </button>
