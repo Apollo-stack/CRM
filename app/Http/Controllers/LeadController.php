@@ -102,7 +102,8 @@ class LeadController extends Controller
             if ($request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $messages[$request->status] ?? 'Status atualizado!'
+                    'message' => $messages[$request->status] ?? 'Status atualizado!',
+                    'html' => view('components.lead-card', ['lead' => $lead])->render() // Retorna o novo HTML do card
                 ]);
             }
             
@@ -118,7 +119,8 @@ class LeadController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Negócio atualizado com sucesso!'
+                'message' => 'Negócio atualizado com sucesso!',
+                'html' => view('components.lead-card', ['lead' => $lead])->render() // Retorna o novo HTML do card
             ]);
         }
 
