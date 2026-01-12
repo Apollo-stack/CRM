@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Lead;
+use App\LeadStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,19 +14,21 @@ class DashboardController extends Controller
     {
         // ===== MÉTRICAS BÁSICAS =====
         $totalClientes = Client::count();
-        $negociosAbertos = Lead::whereIn('status', ['new', 'negotiation'])->count();
-        $totalVendido = Lead::where('status', 'won')->sum('value');
+        
+        // Uso de ENUM para segurança e clareza
+        $negociosAbertos = Lead::whereIn('status', [LeadStatus::NEW, LeadStatus::NEGOTIATION])->count();
+        $totalVendido = Lead::where('status', LeadStatus::WON)->sum('value');
 
         // ===== TAXA DE CONVERSÃO =====
         $totalNegocios = Lead::count();
-        $negociosGanhos = Lead::where('status', 'won')->count();
+        $negociosGanhos = Lead::where('status', LeadStatus::WON)->count();
         $taxaConversao = $totalNegocios > 0 ? round(($negociosGanhos / $totalNegocios) * 100, 1) : 0;
 
         // ===== TICKET MÉDIO =====
         $ticketMedio = $negociosGanhos > 0 ? round($totalVendido / $negociosGanhos, 2) : 0;
 
         // ===== GRÁFICO DE VENDAS (ÚLTIMOS 6 MESES) =====
-        $vendasPorMes = Lead::where('status', 'won')
+        $vendasPorMes = Lead::where('status', LeadStatus::WON)
             ->where('created_at', '>=', now()->subMonths(6))
             ->select(
                 DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
@@ -39,17 +42,16 @@ class DashboardController extends Controller
         $meses = [];
         $valores = [];
         foreach ($vendasPorMes as $venda) {
-            // Converter "2025-01" para "Jan/25"
             $meses[] = date('M/y', strtotime($venda->mes . '-01'));
             $valores[] = $venda->total;
         }
 
         // ===== DISTRIBUIÇÃO DO FUNIL =====
         $distribuicaoFunil = [
-            'novos' => Lead::where('status', 'new')->count(),
-            'negociacao' => Lead::where('status', 'negotiation')->count(),
-            'ganhos' => Lead::where('status', 'won')->count(),
-            'perdidos' => Lead::where('status', 'lost')->count(),
+            'novos' => Lead::where('status', LeadStatus::NEW)->count(),
+            'negociacao' => Lead::where('status', LeadStatus::NEGOTIATION)->count(),
+            'ganhos' => Lead::where('status', LeadStatus::WON)->count(),
+            'perdidos' => Lead::where('status', LeadStatus::LOST)->count(),
         ];
 
         return view('dashboard', compact(
@@ -68,60 +70,13 @@ class DashboardController extends Controller
     {
         $query = $request->get('q');
         
-        // Se não digitou nada, redireciona pro dashboard
         if (!$query) {
             return redirect()->route('dashboard');
         }
         
-        // ===== BUSCA EM CLIENTES =====
-        // (Global Scope filtra automaticamente por user_id)
-        $clients = \App\Models\Client::where(function($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                ->orWhere('company_name', 'like', "%{$query}%")
-                ->orWhere('email', 'like', "%{$query}%")
-                ->orWhere('phone', 'like', "%{$query}%")
-                ->orWhere('address', 'like', "%{$query}%")
-                ->orWhere('city', 'like', "%{$query}%");
-            })
-            ->limit(20)
-            ->get();
-        
-        // ===== BUSCA EM NEGÓCIOS/LEADS =====
-        // (Global Scope filtra automaticamente por user_id)
-        $leads = \App\Models\Lead::where(function($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                ->orWhereHas('client', function($q2) use ($query) {
-                    $q2->where('name', 'like', "%{$query}%")
-                        ->orWhere('company_name', 'like', "%{$query}%");
-                });
-                
-                // Se buscou por valor (ex: "1000", "R$ 1000")
-                $numericQuery = preg_replace('/[^0-9.]/', '', $query);
-                if (is_numeric($numericQuery) && $numericQuery > 0) {
-                    $q->orWhere('value', '>=', $numericQuery * 0.9)
-                    ->where('value', '<=', $numericQuery * 1.1);
-                }
-                
-                // Se buscou por status
-                $statusMap = [
-                    'novo' => 'new',
-                    'novos' => 'new',
-                    'negociacao' => 'negotiation',
-                    'negociação' => 'negotiation',
-                    'ganho' => 'won',
-                    'ganhos' => 'won',
-                    'fechado' => 'won',
-                    'perdido' => 'lost',
-                    'perdidos' => 'lost',
-                ];
-                $lowerQuery = strtolower($query);
-                if (isset($statusMap[$lowerQuery])) {
-                    $q->orWhere('status', $statusMap[$lowerQuery]);
-                }
-            })
-            ->with('client')
-            ->limit(20)
-            ->get();
+        // Busca simplificada usando Scopes criados nos Models
+        $clients = Client::search($query)->limit(20)->get();
+        $leads = Lead::search($query)->with('client')->limit(20)->get();
         
         // ===== ESTATÍSTICAS DA BUSCA =====
         $totalResults = $clients->count() + $leads->count();

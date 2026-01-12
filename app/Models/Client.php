@@ -26,6 +26,21 @@ class Client extends Model
         static::addGlobalScope(new \App\Models\Scopes\UserScope);
     }
 
+    /**
+     * Scope para busca global de clientes
+     */
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+              ->orWhere('company_name', 'like', "%{$term}%")
+              ->orWhere('email', 'like', "%{$term}%")
+              ->orWhere('phone', 'like', "%{$term}%")
+              ->orWhere('address', 'like', "%{$term}%")
+              ->orWhere('city', 'like', "%{$term}%");
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
