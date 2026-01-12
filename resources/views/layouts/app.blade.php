@@ -7,18 +7,44 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <style>
+            /* Garante que o loader tenha estilo mesmo se o app.css falhar */
+            .page-loading {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: opacity 0.3s ease;
+            }
+            .spinner {
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top: 4px solid #ffffff;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
             @isset($header)
                 <header class="bg-white dark:bg-gray-800 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -27,13 +53,13 @@
                 </header>
             @endisset
 
-            <!-- Page Content -->
             <main>
                 @yield('content')
             </main>
         </div>
-        {{-- Loading Overlay Global --}}
-        <div id="page-loader" class="page-loading hidden">
+
+        {{-- Loading Overlay Global (Começa oculto com style inline para segurança) --}}
+        <div id="page-loader" class="page-loading" style="display: none;">
             <div class="text-center">
                 <div class="spinner mx-auto mb-4"></div>
                 <p class="text-white text-lg">Carregando...</p>
@@ -44,95 +70,81 @@
         <script>
         // ===== LOADING GLOBAL =====
         function showPageLoader() {
-            document.getElementById('page-loader').classList.remove('hidden');
+            const loader = document.getElementById('page-loader');
+            if (loader) {
+                loader.style.display = 'flex';
+                // Trava de segurança: esconde automaticamente após 10 segundos se algo der errado
+                setTimeout(hidePageLoader, 10000);
+            }
         }
 
         function hidePageLoader() {
-            document.getElementById('page-loader').classList.add('hidden');
+            const loader = document.getElementById('page-loader');
+            if (loader) loader.style.display = 'none';
         }
 
         // ===== LOADING EM FORMS =====
         document.addEventListener('DOMContentLoaded', function() {
+            // Garante que o loader suma assim que o JS carregar
+            hidePageLoader();
+
             // Quando qualquer formulário for enviado
             document.querySelectorAll('form').forEach(form => {
                 form.addEventListener('submit', function(e) {
+                    // Não mostra loader se o form tiver target="_blank"
+                    if (this.target === '_blank') return;
+
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn && !submitBtn.classList.contains('btn-loading')) {
                         submitBtn.classList.add('btn-loading');
-                        submitBtn.disabled = true;
-                        
                         // Salva o texto original
-                        const originalText = submitBtn.textContent;
-                        submitBtn.setAttribute('data-original-text', originalText);
+                        if (!submitBtn.hasAttribute('data-original-text')) {
+                            submitBtn.setAttribute('data-original-text', submitBtn.textContent);
+                        }
                         submitBtn.textContent = 'Processando...';
+                        submitBtn.disabled = true;
                     }
+                    showPageLoader();
                 });
             });
             
             // ===== LOADING EM LINKS DE NAVEGAÇÃO =====
-            document.querySelectorAll('a:not([target="_blank"])').forEach(link => {
-                // Ignora âncoras (#) e javascript:
-                if (link.href && !link.href.includes('#') && !link.href.includes('javascript:')) {
-                    link.addEventListener('click', function(e) {
-                        // Não mostrar loading em links de exclusão ou com data-no-loading
-                        if (!this.closest('form') && !this.hasAttribute('data-no-loading')) {
-                            showPageLoader();
-                        }
-                    });
-                }
-            });
-            
-            // Remove loading quando a página carregar
-            window.addEventListener('load', function() {
-                hidePageLoader();
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    const target = this.getAttribute('target');
+                    
+                    // Condições para NÃO mostrar o loading
+                    if (!href || 
+                        href.startsWith('#') || 
+                        href.startsWith('javascript:') || 
+                        target === '_blank' ||
+                        this.hasAttribute('data-no-loading') ||
+                        e.ctrlKey || e.metaKey) { // Se segurar Ctrl/Cmd (abrir nova aba)
+                        return;
+                    }
+
+                    // Se for apenas um link de download
+                    if (this.hasAttribute('download')) return;
+
+                    showPageLoader();
+                });
             });
         });
 
-        // ===== LOADING HELPER FUNCTIONS =====
-        function addButtonLoading(button, text = 'Processando...') {
-            if (!button.hasAttribute('data-original-text')) {
-                button.setAttribute('data-original-text', button.textContent);
-            }
-            button.classList.add('btn-loading');
-            button.disabled = true;
-            button.textContent = text;
-        }
-
-        function removeButtonLoading(button) {
-            button.classList.remove('btn-loading');
-            button.disabled = false;
-            const originalText = button.getAttribute('data-original-text');
-            if (originalText) {
-                button.textContent = originalText;
-            }
-        }
+        // Evento extra para garantir que esconde ao carregar a página (bfcache suporte)
+        window.addEventListener('pageshow', function(event) {
+            hidePageLoader();
+        });
+        
+        window.addEventListener('load', function() {
+            hidePageLoader();
+        });
         </script>
 
         {{-- Busca Global com Loading --}}
-        <form action="{{ route('global.search') }}" method="GET" class="flex-1 max-w-lg mx-auto px-6" id="search-form">
-            <div class="relative">
-                <input type="text" 
-                    name="q" 
-                    placeholder="Buscar cliente ou negócio..."
-                    class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 outline-none">
-                
-                {{-- Ícone de busca / Loading --}}
-                <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg id="search-icon" class="w-5 h-5 text-gray-400 hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                    <div id="search-loading" class="search-loading hidden"></div>
-                </button>
-            </div>
-        </form>
-
-        <script>
-        document.getElementById('search-form').addEventListener('submit', function() {
-            document.getElementById('search-icon').classList.add('hidden');
-            document.getElementById('search-loading').classList.remove('hidden');
-        });
-        </script>
-
+        {{-- Nota: Removi o form duplicado que estava aqui, use o da navigation bar --}}
+        
         {{-- Sistema de Toasts --}}
         <x-toast />
 
@@ -140,21 +152,10 @@
         @if(session('success') || session('error') || session('warning') || session('info'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    @if(session('success'))
-                        toast.success('Sucesso!', '{{ session('success') }}');
-                    @endif
-                    
-                    @if(session('error'))
-                        toast.error('Erro!', '{{ session('error') }}');
-                    @endif
-                    
-                    @if(session('warning'))
-                        toast.warning('Atenção!', '{{ session('warning') }}');
-                    @endif
-                    
-                    @if(session('info'))
-                        toast.info('Informação', '{{ session('info') }}');
-                    @endif
+                    @if(session('success')) toast.success('Sucesso!', '{{ session('success') }}'); @endif
+                    @if(session('error')) toast.error('Erro!', '{{ session('error') }}'); @endif
+                    @if(session('warning')) toast.warning('Atenção!', '{{ session('warning') }}'); @endif
+                    @if(session('info')) toast.info('Informação', '{{ session('info') }}'); @endif
                 });
             </script>
         @endif
