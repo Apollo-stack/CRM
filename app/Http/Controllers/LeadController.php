@@ -99,6 +99,13 @@ class LeadController extends Controller
                 'new' => 'Negócio voltou para Novos.',
             ];
             
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $messages[$request->status] ?? 'Status atualizado!'
+                ]);
+            }
+            
             return back()->with('success', $messages[$request->status] ?? 'Status atualizado!');
         }
 
@@ -107,6 +114,13 @@ class LeadController extends Controller
             'title', 'value', 'client_id', 'status',
             'cep', 'address', 'city', 'state'
         ]));
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Negócio atualizado com sucesso!'
+            ]);
+        }
 
         return redirect()->route('leads.show', $lead->id)
             ->with('success', 'Negócio atualizado com sucesso!');

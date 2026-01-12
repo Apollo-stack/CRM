@@ -38,9 +38,11 @@
                 </span>
             </h3>
             
-            <div class="space-y-3">
+            <div class="space-y-3" id="kanban-new" data-status="new">
                 @foreach($leads->where('status', \App\LeadStatus::NEW) as $lead)
-                    <x-lead-card :lead="$lead" />
+                    <div data-id="{{ $lead->id }}">
+                        <x-lead-card :lead="$lead" />
+                    </div>
                 @endforeach
             </div>
         </div>
@@ -54,9 +56,11 @@
                 </span>
             </h3>
 
-            <div class="space-y-3">
+            <div class="space-y-3" id="kanban-negotiation" data-status="negotiation">
                 @foreach($leads->where('status', \App\LeadStatus::NEGOTIATION) as $lead)
-                    <x-lead-card :lead="$lead" />
+                    <div data-id="{{ $lead->id }}">
+                        <x-lead-card :lead="$lead" />
+                    </div>
                 @endforeach
             </div>
         </div>
@@ -70,9 +74,11 @@
                 </span>
             </h3>
 
-            <div class="space-y-3">
+            <div class="space-y-3" id="kanban-won" data-status="won">
                 @foreach($leads->where('status', \App\LeadStatus::WON) as $lead)
-                    <x-lead-card :lead="$lead" />
+                    <div data-id="{{ $lead->id }}">
+                        <x-lead-card :lead="$lead" />
+                    </div>
                 @endforeach
             </div>
         </div>
