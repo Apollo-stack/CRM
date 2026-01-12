@@ -67,36 +67,59 @@
     <div class="bg-gray-800 rounded-lg p-6 mb-8">
         <h3 class="text-xl font-bold text-white mb-4">Vendas nos Últimos 6 Meses</h3>
         
-        {{-- Loading do Gráfico --}}
-        <div id="chart-loading" class="text-center py-20">
-            <x-loading size="40px" text="Carregando gráfico..." />
-        </div>
-        
-        {{-- Canvas do Gráfico (escondido inicialmente) --}}
-        <canvas id="vendasChart" class="w-full hidden" style="max-height: 400px;"></canvas>
+        {{-- Canvas do Gráfico --}}
+        <canvas id="vendasChart" class="w-full" style="max-height: 400px;"></canvas>
     </div>
 
     {{-- No script do Chart.js, adiciona: --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Mostra loading
-        document.getElementById('chart-loading').classList.remove('hidden');
-        document.getElementById('vendasChart').classList.add('hidden');
-        
-        // Simula pequeno delay para renderizar gráfico
-        setTimeout(() => {
-            const meses = @json($meses);
-            const valores = @json($valores);
 
-            const ctx = document.getElementById('vendasChart').getContext('2d');
-            const vendasChart = new Chart(ctx, {
-                // ... configuração do gráfico ...
-            });
-            
-            // Esconde loading e mostra gráfico
-            document.getElementById('chart-loading').classList.add('hidden');
-            document.getElementById('vendasChart').classList.remove('hidden');
-        }, 300);
+    <script>
+       const meses = @json($meses);
+        const valores = @json($valores);
+
+        const ctx = document.getElementById('vendasChart').getContext('2d');
+        const vendasChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: meses,
+                datasets: [{
+                    label: 'Vendas (R$)',
+                    data: valores,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#9ca3af' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#9ca3af',
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        },
+                        grid: { color: 'rgba(75, 85, 99, 0.3)' }
+                    },
+                    x: {
+                        ticks: { color: '#9ca3af' },
+                        grid: { color: 'rgba(75, 85, 99, 0.3)' }
+                    }
+                }
+            }
+        });
+
     </script>
 
     {{-- ACESSO RÁPIDO --}}

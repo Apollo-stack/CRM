@@ -46,21 +46,20 @@ class LeadController extends Controller
             'client_id' => 'required|exists:clients,id',
         ]);
 
-        \App\Models\Lead::create([
+        Lead::create([
             'user_id' => auth()->id(),
             'client_id' => $request->client_id,
             'title' => $request->title,
             'value' => $request->value ?? 0,
             'status' => 'new',
-            
-            // Salvando o endereço
             'cep' => $request->cep,
             'address' => $request->address,
             'city' => $request->city,
             'state' => $request->state,
         ]);
 
-        return redirect()->route('leads.index')->with('success', 'Negócio criado com sucesso!');
+        return redirect()->route('leads.index')
+            ->with('success', 'Negócio criado com sucesso!');
     }
 
     /**
@@ -92,36 +91,37 @@ class LeadController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $lead = \App\Models\Lead::where('user_id', auth()->id())->findOrFail($id);
+        $lead = Lead::where('user_id', auth()->id())->findOrFail($id);
 
-        // 1. Mudança Rápida (Botões do Kanban)
-        // Se veio um 'status' no request, salva e volta rápido.
+        // Mudança rápida de status (botões do Kanban)
         if ($request->has('status')) {
             $lead->status = $request->status;
             $lead->save();
-            return back();
+            
+            $messages = [
+                'negotiation' => 'Negócio movido para Em Negociação!',
+                'won' => '🎉 Parabéns! Negócio marcado como Ganho!',
+                'lost' => 'Negócio marcado como Perdido.',
+                'new' => 'Negócio voltou para Novos.',
+            ];
+            
+            return back()->with('success', $messages[$request->status] ?? 'Status atualizado!');
         }
 
-        // 2. Edição Completa (Formulário)
+        // Edição completa do formulário
         $request->validate([
             'title' => 'required',
             'value' => 'numeric',
             'client_id' => 'required'
         ]);
 
-        // ATENÇÃO: Aqui incluímos 'status' e os campos de endereço
         $lead->update($request->only([
-            'title', 
-            'value', 
-            'client_id', 
-            'status', // <--- Agora permite mudar status
-            'cep',    // <--- Agora salva o endereço na edição
-            'address', 
-            'city', 
-            'state'
+            'title', 'value', 'client_id', 'status',
+            'cep', 'address', 'city', 'state'
         ]));
 
-        return redirect()->route('leads.show', $lead->id)->with('success', 'Negócio atualizado!');
+        return redirect()->route('leads.show', $lead->id)
+            ->with('success', 'Negócio atualizado com sucesso!');
     }
 
     /**
@@ -136,13 +136,21 @@ class LeadController extends Controller
     {
         $request->validate(['content' => 'required']);
 
-        \App\Models\Note::create([
+        Note::create([
             'lead_id' => $id,
             'user_id' => auth()->id(),
             'content' => $request->content,
             'type' => $request->type ?? 'note'
         ]);
 
-        return back()->with('success', 'Anotação adicionada!');
+        $typeMessages = [
+            'call' => '📞 Ligação registrada!',
+            'whatsapp' => '💬 Mensagem do WhatsApp registrada!',
+            'email' => '📧 Email registrado!',
+            'meeting' => '🤝 Reunião registrada!',
+            'note' => '📝 Nota adicionada!',
+        ];
+
+        return back()->with('success', $typeMessages[$request->type] ?? 'Interação registrada!');
     }
 }

@@ -114,12 +114,12 @@
                                                 Editar
                                             </a>
                                             <form action="{{ route('clients.destroy', $client->id) }}" 
-                                                  method="POST" 
-                                                  onsubmit="return confirm('Tem certeza que deseja excluir este cliente?')">
+                                                method="POST" 
+                                                class="inline"
+                                                onsubmit="return confirm('⚠️ Tem certeza que deseja excluir este cliente?\n\nEsta ação não pode ser desfeita!')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
-                                                        class="text-red-600 hover:text-red-800 transition">
+                                                <button type="submit" class="text-red-600 hover:text-red-800 font-medium">
                                                     Excluir
                                                 </button>
                                             </form>
@@ -159,7 +159,7 @@
         </div>
 
     </div>
-    
+
     {{-- Skeleton Loading --}}
     <template id="skeleton-row">
         <tr>
