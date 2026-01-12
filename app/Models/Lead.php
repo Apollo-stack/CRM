@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\LeadStatus;
 
 class Lead extends Model
 {
@@ -22,6 +23,29 @@ class Lead extends Model
         'city',
         'state'
     ];
+
+    /**
+     * Casts para tipos especiais
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => LeadStatus::class,
+            'value' => 'decimal:2',
+        ];
+    }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            if (auth()->check()) {
+                $builder->where('user_id', auth()->id());
+            }
+        });
+    }
 
     // --- ADICIONE ISSO AQUI EMBAIXO ---
     

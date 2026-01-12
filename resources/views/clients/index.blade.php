@@ -95,9 +95,9 @@
                                     </td>
                                     <td class="px-6 py-4 text-gray-600">{{ $client->phone }}</td>
                                     <td class="px-6 py-4 text-gray-600">
-                                        @if($client->ultima_interacao)
+                                        @if($client->latestNote)
                                             <span class="text-sm">
-                                                {{ $client->ultima_interacao->diffForHumans() }}
+                                                {{ $client->latestNote->created_at->diffForHumans() }}
                                             </span>
                                         @else
                                             <span class="text-gray-400 text-sm">Sem interações</span>

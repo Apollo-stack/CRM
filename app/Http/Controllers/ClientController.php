@@ -21,7 +21,7 @@ class ClientController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('company_name', 'like', "%{$search}%")  // ← MUDOU AQUI
+                ->orWhere('company_name', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%")
                 ->orWhere('phone', 'like', "%{$search}%");
             });
@@ -29,7 +29,7 @@ class ClientController extends Controller
 
         // ===== FILTRO POR EMPRESA =====
         if ($request->filled('company')) {
-            $query->where('company_name', 'like', "%{$request->company}%");  // ← MUDOU AQUI
+            $query->where('company_name', 'like', "%{$request->company}%");
         }
 
         // ===== ORDENAÇÃO =====
@@ -51,20 +51,11 @@ class ClientController extends Controller
         $query->orderBy($orderByField, $orderDirection);
 
         // ===== PAGINAÇÃO (15 por página) =====
-        $clients = $query->paginate(15)->appends($request->all());
-
-        // ===== BUSCAR ÚLTIMA INTERAÇÃO DE CADA CLIENTE =====
-        foreach ($clients as $client) {
-            // Pega a última nota/interação relacionada aos leads deste cliente
-            $ultimaInteracao = \App\Models\Note::whereHas('lead', function($q) use ($client) {
-                $q->where('client_id', $client->id);
-            })->latest()->first();
-            
-            $client->ultima_interacao = $ultimaInteracao ? $ultimaInteracao->created_at : null;
-        }
+        // OTIMIZAÇÃO: Carregamos a nota mais recente para evitar N+1
+        $clients = $query->with('latestNote')->paginate(15)->appends($request->all());
 
         // Pegar lista única de empresas para o filtro
-        $empresas = Client::distinct()->pluck('company_name')->filter()->sort();  // ← MUDOU AQUI
+        $empresas = Client::distinct()->pluck('company_name')->filter()->sort();
 
         return view('clients.index', compact('clients', 'empresas'));
     }
@@ -169,36 +160,36 @@ class ClientController extends Controller
 
     public function obterDadosJson($id)
     {
-        // Busca o cliente ou falha se não existir
-        $cliente = \App\Models\Client::findOrFail($id);
+        // SEGURANÇA: Busca apenas se pertencer ao usuário logado
+        $cliente = \App\Models\Client::where('user_id', auth()->id())->findOrFail($id);
 
         // Retorna os dados como JSON para o Javascript ler
         return response()->json([
             'cep' => $cliente->cep,
             'cidade' => $cliente->cidade,
             'uf' => $cliente->uf,
-            'endereco_completo' => $cliente->endereco . ', ' . $cliente->numero // Exemplo de concatenação
+            'endereco_completo' => $cliente->endereco . ', ' . $cliente->numero
         ]);
     }
 
     public function buscaEndereco($id)
     {
-        // 1. Tenta achar o cliente
-        $cliente = \App\Models\Client::find($id);
+        // SEGURANÇA: Busca apenas se pertencer ao usuário logado
+        $cliente = \App\Models\Client::where('user_id', auth()->id())->find($id);
 
-        // 2. Se não achar, devolve erro
+        // Se não achar ou não pertencer ao usuário, devolve erro
         if (!$cliente) {
             return response()->json(['erro' => 'Cliente não encontrado'], 404);
         }
 
-        // 3. Devolve os dados bonitinhos
+        // Devolve os dados
         return response()->json([
             'cep' => $cliente->cep,
             'endereco' => $cliente->address,
             'numero' => $cliente->number,
             'bairro' => $cliente->neighborhood,
             'cidade' => $cliente->city,
-            'estado' => $cliente->state, // ou 'uf', confira como está no seu banco
+            'estado' => $cliente->state,
         ]);
     }
 }
