@@ -41,13 +41,13 @@
             <h3 class="text-xl font-bold text-white mb-4">Status Atual</h3>
             
             <div class="mb-6">
-                @if($lead->status == 'new')
+                @if($lead->status === \App\LeadStatus::NEW)
                     <span class="inline-block bg-gray-600 text-white px-4 py-2 rounded-lg text-lg font-bold">NOVO</span>
-                @elseif($lead->status == 'negotiation')
+                @elseif($lead->status === \App\LeadStatus::NEGOTIATION)
                     <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-lg font-bold">EM NEGOCIAÇÃO</span>
-                @elseif($lead->status == 'won')
+                @elseif($lead->status === \App\LeadStatus::WON)
                     <span class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">GANHO 🎉</span>
-                @elseif($lead->status == 'lost')
+                @elseif($lead->status === \App\LeadStatus::LOST)
                     <span class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg text-lg font-bold">PERDIDO</span>
                 @endif
             </div>
@@ -56,7 +56,7 @@
             <div class="space-y-2">
                 
                 {{-- Botão: Em Negociação --}}
-                @if($lead->status != 'negotiation' && $lead->status != 'won' && $lead->status != 'lost')
+                @if($lead->status !== \App\LeadStatus::NEGOTIATION && $lead->status !== \App\LeadStatus::WON && $lead->status !== \App\LeadStatus::LOST)
                     <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                         @csrf
                         @method('PUT')
@@ -69,7 +69,7 @@
                     </form>
                 @endif
 
-                @if($lead->status == 'negotiation')
+                @if($lead->status === \App\LeadStatus::NEGOTIATION)
                     {{-- Botão: Ganho --}}
                     <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                         @csrf
@@ -96,7 +96,7 @@
                 @endif
                 
                 {{-- Botão: Reabrir (Voltar para Novo) --}}
-                @if($lead->status == 'lost' || $lead->status == 'won')
+                @if($lead->status === \App\LeadStatus::LOST || $lead->status === \App\LeadStatus::WON)
                      <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                         @csrf
                         @method('PUT')

@@ -1,7 +1,7 @@
 @props(['lead'])
 
 <div class="block bg-white dark:bg-gray-700 p-4 rounded shadow hover:shadow-md transition duration-200 border-l-4 
-    {{ $lead->status == 'won' ? 'border-green-500' : ($lead->status == 'negotiation' ? 'border-blue-500' : 'border-gray-500') }}">
+    {{ $lead->status === \App\LeadStatus::WON ? 'border-green-500' : ($lead->status === \App\LeadStatus::NEGOTIATION ? 'border-blue-500' : 'border-gray-500') }}">
     
     {{-- Título e Link --}}
     <div class="flex justify-between items-start mb-2">
@@ -30,7 +30,7 @@
     <div class="mt-3 flex justify-between items-center border-t pt-3 border-gray-100 dark:border-gray-700">
         
         {{-- Botão: Voltar para Novo --}}
-        @if($lead->status !== 'new')
+        @if($lead->status !== \App\LeadStatus::NEW)
             <form action="{{ route('leads.update', $lead->id) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -46,7 +46,7 @@
 
         <div class="flex gap-2">
             {{-- Botão: Mover para Negociação --}}
-            @if($lead->status === 'new')
+            @if($lead->status === \App\LeadStatus::NEW)
                 <form action="{{ route('leads.update', $lead->id) }}" 
                       method="POST"
                       onsubmit="addButtonLoading(this.querySelector('button'), 'Movendo...')">
@@ -62,7 +62,7 @@
             @endif
 
             {{-- Botão: Marcar como Ganho --}}
-            @if($lead->status === 'negotiation')
+            @if($lead->status === \App\LeadStatus::NEGOTIATION)
                 <form action="{{ route('leads.update', $lead->id) }}" 
                       method="POST"
                       onsubmit="addButtonLoading(this.querySelector('button'), 'Salvando...')">

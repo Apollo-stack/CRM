@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Note;
 use Illuminate\Http\Request;
 use App\Models\Lead;
+use App\Http\Requests\StoreLeadRequest;
+use App\Http\Requests\UpdateLeadRequest;
 
 class LeadController extends Controller
 {
@@ -12,10 +14,9 @@ class LeadController extends Controller
      */
     public function index(Request $request)
     {
-        // Comça a query base (Global Scope filtra automaticamente por user_id)
-        $query = \App\Models\Lead::with('client')->latest();
+        // Global Scope filters by user_id automatically
+        $query = Lead::with('client')->latest();
 
-        // Pega os resultados
         $leads = $query->get();
         
         return view('leads.index', compact('leads'));
@@ -26,8 +27,8 @@ class LeadController extends Controller
      */
     public function create()
     {
-        // Busca todos os clientes para preencher o <select>
-        $clients = \App\Models\Client::where('user_id', auth()->id())->get();
+        // Scope applies to Client too
+        $clients = \App\Models\Client::all();
 
         return view('leads.create', compact('clients'));
     }
@@ -35,12 +36,9 @@ class LeadController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLeadRequest $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'client_id' => 'required|exists:clients,id',
-        ]);
+        // Validation is handled by StoreLeadRequest
 
         Lead::create([
             'user_id' => auth()->id(),
@@ -63,10 +61,8 @@ class LeadController extends Controller
      */
     public function show(string $id)
     {
-        // Busca o Lead pelo ID, trazendo os dados do Cliente junto
-        $lead = \App\Models\Lead::where('user_id', auth()->id())
-                    ->with('client')
-                    ->findOrFail($id);
+        // Scope applies automatically
+        $lead = Lead::with('client')->findOrFail($id);
         
         return view('leads.show', compact('lead'));
     }
@@ -76,8 +72,8 @@ class LeadController extends Controller
      */
     public function edit(string $id)
     {
-        $lead = \App\Models\Lead::where('user_id', auth()->id())->findOrFail($id);
-        $clients = \App\Models\Client::where('user_id', auth()->id())->get();
+        $lead = Lead::findOrFail($id);
+        $clients = \App\Models\Client::all();
         
         return view('leads.edit', compact('lead', 'clients'));
     }
@@ -85,12 +81,13 @@ class LeadController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateLeadRequest $request, string $id)
     {
-        $lead = Lead::where('user_id', auth()->id())->findOrFail($id);
+        $lead = Lead::findOrFail($id);
 
-        // CORREÇÃO: Só entra no "Modo Rápido" se tiver status E NÃO tiver title.
-        // Isso evita que o formulário de edição caia aqui por engano.
+        // Validation handled by UpdateLeadRequest
+
+        // Logic for Quick Update (only status)
         if ($request->has('status') && !$request->has('title')) {
             $lead->status = $request->status;
             $lead->save();
@@ -105,13 +102,7 @@ class LeadController extends Controller
             return back()->with('success', $messages[$request->status] ?? 'Status atualizado!');
         }
 
-        // Edição completa do formulário
-        $request->validate([
-            'title' => 'required',
-            'value' => 'numeric',
-            'client_id' => 'required'
-        ]);
-
+        // Full Update
         $lead->update($request->only([
             'title', 'value', 'client_id', 'status',
             'cep', 'address', 'city', 'state'
@@ -126,7 +117,7 @@ class LeadController extends Controller
      */
     public function destroy(string $id)
     {
-        $lead = Lead::where('user_id', auth()->id())->findOrFail($id);
+        $lead = Lead::findOrFail($id);
         $lead->delete();
 
         return redirect()->route('leads.index')

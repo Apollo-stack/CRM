@@ -13,7 +13,7 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        // Inicia a query
+        // Global UserScope applies automatically
         $query = Client::query();
 
         // ===== BUSCA GLOBAL =====
@@ -99,15 +99,18 @@ class ClientController extends Controller
      */
     public function show(string $id)
     {
-        $client = Client::where('user_id', auth()->id())->findOrFail($id);
+        $client = Client::findOrFail($id);
         
         // Busca as vendas ganhas (WON) deste cliente
+        // Note: Leads also have UserScope, so we might not strictly need to check client ownership if we trust the lead->client relation, 
+        // but strictly ensuring leads belong to the user is safe.
+        // Since Leads have UserScope, this query `App\Models\Lead::...` will also be scoped to the user.
+        
         $salesHistory = \App\Models\Lead::where('client_id', $client->id)
             ->where('status', 'won')
             ->orderBy('updated_at', 'desc')
             ->get();
         
-        // Busca as negociações em aberto (NEW ou NEGOTIATION)
         $openLeads = \App\Models\Lead::where('client_id', $client->id)
             ->whereIn('status', ['new', 'negotiation'])
             ->orderBy('created_at', 'desc')
@@ -121,7 +124,7 @@ class ClientController extends Controller
      */
     public function edit(string $id)
     {
-        $client = \App\Models\Client::where('user_id', auth()->id())->findOrFail($id);
+        $client = Client::findOrFail($id);
         return view('clients.edit', compact('client'));
     }
 
@@ -130,7 +133,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $client = Client::where('user_id', auth()->id())->findOrFail($id);
+        $client = Client::findOrFail($id);
 
         $request->validate([
             'name' => 'required',
@@ -151,7 +154,7 @@ class ClientController extends Controller
      */
     public function destroy(string $id)
     {
-        $client = Client::where('user_id', auth()->id())->findOrFail($id);
+        $client = Client::findOrFail($id);
         $client->delete();
 
         return redirect()->route('clients.index')

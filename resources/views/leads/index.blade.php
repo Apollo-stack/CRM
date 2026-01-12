@@ -34,12 +34,12 @@
             <h3 class="font-bold text-gray-300 mb-4 flex justify-between items-center">
                 Novos
                 <span class="bg-gray-600 text-gray-200 text-xs px-2 py-1 rounded-full">
-                    {{ $leads->where('status', 'new')->count() }}
+                    {{ $leads->where('status', \App\LeadStatus::NEW)->count() }}
                 </span>
             </h3>
             
             <div class="space-y-3">
-                @foreach($leads->where('status', 'new') as $lead)
+                @foreach($leads->where('status', \App\LeadStatus::NEW) as $lead)
                     <x-lead-card :lead="$lead" />
                 @endforeach
             </div>
@@ -50,12 +50,12 @@
             <h3 class="font-bold text-blue-300 mb-4 flex justify-between items-center">
                 Em Negociação
                 <span class="bg-blue-900 text-blue-200 text-xs px-2 py-1 rounded-full">
-                    {{ $leads->where('status', 'negotiation')->count() }}
+                    {{ $leads->where('status', \App\LeadStatus::NEGOTIATION)->count() }}
                 </span>
             </h3>
 
             <div class="space-y-3">
-                @foreach($leads->where('status', 'negotiation') as $lead)
+                @foreach($leads->where('status', \App\LeadStatus::NEGOTIATION) as $lead)
                     <x-lead-card :lead="$lead" />
                 @endforeach
             </div>
@@ -66,12 +66,12 @@
             <h3 class="font-bold text-green-300 mb-4 flex justify-between items-center">
                 Ganhos
                 <span class="bg-green-900 text-green-200 text-xs px-2 py-1 rounded-full">
-                    {{ $leads->where('status', 'won')->count() }}
+                    {{ $leads->where('status', \App\LeadStatus::WON)->count() }}
                 </span>
             </h3>
 
             <div class="space-y-3">
-                @foreach($leads->where('status', 'won') as $lead)
+                @foreach($leads->where('status', \App\LeadStatus::WON) as $lead)
                     <x-lead-card :lead="$lead" />
                 @endforeach
             </div>

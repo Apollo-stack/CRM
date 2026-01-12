@@ -40,11 +40,7 @@ class Lead extends Model
      */
     protected static function booted(): void
     {
-        static::addGlobalScope('user', function (\Illuminate\Database\Eloquent\Builder $builder) {
-            if (auth()->check()) {
-                $builder->where('user_id', auth()->id());
-            }
-        });
+        static::addGlobalScope(new \App\Models\Scopes\UserScope);
     }
 
     // --- ADICIONE ISSO AQUI EMBAIXO ---
