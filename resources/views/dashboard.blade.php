@@ -66,8 +66,38 @@
     {{-- GRÁFICO DE VENDAS --}}
     <div class="bg-gray-800 rounded-lg p-6 mb-8">
         <h3 class="text-xl font-bold text-white mb-4">Vendas nos Últimos 6 Meses</h3>
-        <canvas id="vendasChart" class="w-full" style="max-height: 400px;"></canvas>
+        
+        {{-- Loading do Gráfico --}}
+        <div id="chart-loading" class="text-center py-20">
+            <x-loading size="40px" text="Carregando gráfico..." />
+        </div>
+        
+        {{-- Canvas do Gráfico (escondido inicialmente) --}}
+        <canvas id="vendasChart" class="w-full hidden" style="max-height: 400px;"></canvas>
     </div>
+
+    {{-- No script do Chart.js, adiciona: --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Mostra loading
+        document.getElementById('chart-loading').classList.remove('hidden');
+        document.getElementById('vendasChart').classList.add('hidden');
+        
+        // Simula pequeno delay para renderizar gráfico
+        setTimeout(() => {
+            const meses = @json($meses);
+            const valores = @json($valores);
+
+            const ctx = document.getElementById('vendasChart').getContext('2d');
+            const vendasChart = new Chart(ctx, {
+                // ... configuração do gráfico ...
+            });
+            
+            // Esconde loading e mostra gráfico
+            document.getElementById('chart-loading').classList.add('hidden');
+            document.getElementById('vendasChart').classList.remove('hidden');
+        }, 300);
+    </script>
 
     {{-- ACESSO RÁPIDO --}}
     <div class="bg-gray-800 rounded-lg p-6">
