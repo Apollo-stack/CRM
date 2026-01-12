@@ -159,5 +159,31 @@
         </div>
 
     </div>
+    
+    {{-- Skeleton Loading --}}
+    <template id="skeleton-row">
+        <tr>
+            <td class="px-6 py-4"><div class="h-4 skeleton rounded w-32"></div></td>
+            <td class="px-6 py-4"><div class="h-4 skeleton rounded w-40"></div></td>
+            <td class="px-6 py-4"><div class="h-4 skeleton rounded w-48"></div></td>
+            <td class="px-6 py-4"><div class="h-4 skeleton rounded w-28"></div></td>
+            <td class="px-6 py-4"><div class="h-4 skeleton rounded w-24"></div></td>
+            <td class="px-6 py-4 text-center"><div class="h-4 skeleton rounded w-20 mx-auto"></div></td>
+        </tr>
+    </template>
+
+    <script>
+    // Mostra skeleton ao aplicar filtros
+    document.querySelector('form').addEventListener('submit', function() {
+        const tbody = document.querySelector('tbody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            const template = document.getElementById('skeleton-row');
+            for(let i = 0; i < 5; i++) {
+                tbody.appendChild(template.content.cloneNode(true));
+            }
+        }
+    });
+    </script>
 </div>
 @endsection
