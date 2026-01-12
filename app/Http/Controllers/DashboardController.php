@@ -13,19 +13,19 @@ class DashboardController extends Controller
     {
         // ===== MÉTRICAS BÁSICAS =====
         $totalClientes = Client::count();
-        $negociosAbertos = Lead::whereIn('status', ['NEW', 'NEGOTIATION'])->count();
-        $totalVendido = Lead::where('status', 'WON')->sum('value');
+        $negociosAbertos = Lead::whereIn('status', ['new', 'negotiation'])->count();
+        $totalVendido = Lead::where('status', 'won')->sum('value');
 
         // ===== TAXA DE CONVERSÃO =====
         $totalNegocios = Lead::count();
-        $negociosGanhos = Lead::where('status', 'WON')->count();
+        $negociosGanhos = Lead::where('status', 'won')->count();
         $taxaConversao = $totalNegocios > 0 ? round(($negociosGanhos / $totalNegocios) * 100, 1) : 0;
 
         // ===== TICKET MÉDIO =====
         $ticketMedio = $negociosGanhos > 0 ? round($totalVendido / $negociosGanhos, 2) : 0;
 
         // ===== GRÁFICO DE VENDAS (ÚLTIMOS 6 MESES) =====
-        $vendasPorMes = Lead::where('status', 'WON')
+        $vendasPorMes = Lead::where('status', 'won')
             ->where('created_at', '>=', now()->subMonths(6))
             ->select(
                 DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
@@ -46,10 +46,10 @@ class DashboardController extends Controller
 
         // ===== DISTRIBUIÇÃO DO FUNIL =====
         $distribuicaoFunil = [
-            'novos' => Lead::where('status', 'NEW')->count(),
-            'negociacao' => Lead::where('status', 'NEGOTIATION')->count(),
-            'ganhos' => Lead::where('status', 'WON')->count(),
-            'perdidos' => Lead::where('status', 'LOST')->count(),
+            'novos' => Lead::where('status', 'new')->count(),
+            'negociacao' => Lead::where('status', 'negotiation')->count(),
+            'ganhos' => Lead::where('status', 'won')->count(),
+            'perdidos' => Lead::where('status', 'lost')->count(),
         ];
 
         return view('dashboard', compact(
@@ -74,8 +74,8 @@ class DashboardController extends Controller
         }
         
         // ===== BUSCA EM CLIENTES =====
-        $clients = \App\Models\Client::where('user_id', auth()->id())
-            ->where(function($q) use ($query) {
+        // (Global Scope filtra automaticamente por user_id)
+        $clients = \App\Models\Client::where(function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                 ->orWhere('company_name', 'like', "%{$query}%")
                 ->orWhere('email', 'like', "%{$query}%")
@@ -87,8 +87,8 @@ class DashboardController extends Controller
             ->get();
         
         // ===== BUSCA EM NEGÓCIOS/LEADS =====
-        $leads = \App\Models\Lead::where('user_id', auth()->id())
-            ->where(function($q) use ($query) {
+        // (Global Scope filtra automaticamente por user_id)
+        $leads = \App\Models\Lead::where(function($q) use ($query) {
                 $q->where('title', 'like', "%{$query}%")
                 ->orWhereHas('client', function($q2) use ($query) {
                     $q2->where('name', 'like', "%{$query}%")

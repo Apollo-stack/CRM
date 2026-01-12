@@ -12,13 +12,8 @@ class LeadController extends Controller
      */
     public function index(Request $request)
     {
-        // Começa a query base
+        // Comça a query base (Global Scope filtra automaticamente por user_id)
         $query = \App\Models\Lead::with('client')->latest();
-
-        // Se NÃO tiver pedindo pra ver "todos", filtra só os meus (Padrão)
-        if ($request->input('view') !== 'all') {
-            $query->where('user_id', auth()->id());
-        }
 
         // Pega os resultados
         $leads = $query->get();
@@ -131,7 +126,11 @@ class LeadController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $lead = Lead::where('user_id', auth()->id())->findOrFail($id);
+        $lead->delete();
+
+        return redirect()->route('leads.index')
+            ->with('success', 'Negócio excluído com sucesso!');
     }
 
     public function storeNote(Request $request, $id)

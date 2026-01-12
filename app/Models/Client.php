@@ -18,6 +18,18 @@ class Client extends Model
         'state'      // <---
     ];      
     
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            if (auth()->check()) {
+                $builder->where('user_id', auth()->id());
+            }
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -26,5 +38,11 @@ class Client extends Model
     public function leads()
     {
         return $this->hasMany(Lead::class);
+    }
+
+    public function latestNote()
+    {
+        return $this->hasOneThrough(Note::class, Lead::class)
+            ->orderBy('notes.created_at', 'desc');
     }
 }
