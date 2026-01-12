@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Client;      // ← ADICIONA ESTA LINHA
 use App\Models\Note;     // ← ADICIONA ESTA LINHA
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 
 class ClientController extends Controller
 {
@@ -71,24 +73,15 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreClientRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-        ]);
+        // Dados já validados e seguros
+        $data = $request->validated();
+        
+        // Adiciona o user_id manualmente
+        $data['user_id'] = auth()->id();
 
-        Client::create([
-            'user_id' => auth()->id(),
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'company_name' => $request->company_name,
-            'cep' => $request->cep,
-            'address' => $request->address,
-            'city' => $request->city,
-            'state' => $request->state,
-        ]);
+        Client::create($data);
 
         return redirect()->route('clients.index')
             ->with('success', 'Cliente cadastrado com sucesso!');
@@ -131,19 +124,11 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateClientRequest $request, string $id)
     {
         $client = Client::findOrFail($id);
 
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-        ]);
-
-        $client->update($request->only([
-            'name', 'email', 'phone', 'company_name',
-            'cep', 'address', 'city', 'state'
-        ]));
+        $client->update($request->validated());
 
         return redirect()->route('clients.show', $client->id)
             ->with('success', 'Dados do cliente atualizados!');
