@@ -107,7 +107,7 @@
             }
         }
         </script>
-        
+
         {{-- Busca Global com Loading --}}
         <form action="{{ route('global.search') }}" method="GET" class="flex-1 max-w-lg mx-auto px-6" id="search-form">
             <div class="relative">
@@ -132,5 +132,31 @@
             document.getElementById('search-loading').classList.remove('hidden');
         });
         </script>
+
+        {{-- Sistema de Toasts --}}
+        <x-toast />
+
+        {{-- Processar mensagens flash do Laravel --}}
+        @if(session('success') || session('error') || session('warning') || session('info'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    @if(session('success'))
+                        toast.success('Sucesso!', '{{ session('success') }}');
+                    @endif
+                    
+                    @if(session('error'))
+                        toast.error('Erro!', '{{ session('error') }}');
+                    @endif
+                    
+                    @if(session('warning'))
+                        toast.warning('Atenção!', '{{ session('warning') }}');
+                    @endif
+                    
+                    @if(session('info'))
+                        toast.info('Informação', '{{ session('info') }}');
+                    @endif
+                });
+            </script>
+        @endif
     </body>
 </html>
