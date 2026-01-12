@@ -82,28 +82,25 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validar os dados (Segurança básica)
         $request->validate([
             'name' => 'required',
-            'email' => 'nullable|email',
-            'cep' => 'nullable',
-            'address' => 'nullable',
-            'city' => 'nullable',
-            'state' => 'nullable|max:2',
+            'email' => 'required|email',
         ]);
 
-        // 2. Criar o cliente no Banco
-        // A gente usa o Model 'Client' pra isso
-        \App\Models\Client::create([
-            'user_id' => auth()->id(), // Pega o ID do usuário logado automaticamente
+        Client::create([
+            'user_id' => auth()->id(),
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'company_name' => $request->company_name,
+            'cep' => $request->cep,
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
         ]);
 
-        // 3. Redirecionar para a lista com mensagem de sucesso
-        return redirect()->route('clients.index')->with('success', 'Cliente cadastrado com sucesso!');
+        return redirect()->route('clients.index')
+            ->with('success', 'Cliente cadastrado com sucesso!');
     }
 
     /**
@@ -142,22 +139,20 @@ class ClientController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $client = \App\Models\Client::where('user_id', auth()->id())->findOrFail($id);
+        $client = Client::where('user_id', auth()->id())->findOrFail($id);
 
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required',
-            'email' => 'nullable|email',
-            'phone' => 'nullable',
-            'company_name' => 'nullable',
-            'cep' => 'nullable',
-            'address' => 'nullable',
-            'city' => 'nullable',
-            'state' => 'nullable|max:2',
+            'email' => 'required|email',
         ]);
 
-        $client->update($validated);
+        $client->update($request->only([
+            'name', 'email', 'phone', 'company_name',
+            'cep', 'address', 'city', 'state'
+        ]));
 
-        return redirect()->route('clients.index')->with('success', 'Cliente atualizado com sucesso!');
+        return redirect()->route('clients.show', $client->id)
+            ->with('success', 'Dados do cliente atualizados!');
     }
 
     /**
@@ -165,10 +160,11 @@ class ClientController extends Controller
      */
     public function destroy(string $id)
     {
-        $client = \App\Models\Client::where('user_id', auth()->id())->findOrFail($id);
+        $client = Client::where('user_id', auth()->id())->findOrFail($id);
         $client->delete();
 
-        return redirect()->route('clients.index')->with('success', 'Cliente excluído com sucesso!');
+        return redirect()->route('clients.index')
+            ->with('success', 'Cliente excluído com sucesso!');
     }
 
     public function obterDadosJson($id)
