@@ -32,6 +32,19 @@
                 <span class="block text-xs font-bold uppercase text-gray-400 mb-1">Empresa</span>
                 {{ $client->company_name ?? 'Particular' }}
             </div>
+            <div>
+                <span class="block text-xs font-bold uppercase text-gray-400 mb-1">Responsável</span>
+                <div class="flex items-center gap-2">
+                    @if($client->user)
+                        <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white border border-gray-600">
+                            {{ strtoupper(substr($client->user->name, 0, 2)) }}
+                        </div>
+                        {{ $client->user->name }}
+                    @else
+                        <span class="text-gray-500 italic">Não atribuído</span>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
     
