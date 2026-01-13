@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            console.log('Status atualizado:', newStatus);
+                            // console.log('Status atualizado:', newStatus);
 
                             // Substitui o conteúdo do card pelo novo HTML renderizado pelo servidor
                             if (data.html) {
