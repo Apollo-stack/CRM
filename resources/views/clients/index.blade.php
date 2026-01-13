@@ -59,69 +59,88 @@
             </form>
         </div>
 
-        {{-- TABELA DE CLIENTES --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+        {{-- INFO BAR: TOTAL E FILTROS --}}
+        <div class="flex justify-between items-center mb-4 px-1">
+            <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                @if(request()->hasAny(['search', 'company']) && $clients->total() < \App\Models\Client::count())
+                    Exibindo <span class="text-gray-900 dark:text-white font-bold">{{ $clients->total() }}</span> resultados (de {{ \App\Models\Client::count() }})
+                @else
+                    Total de Clientes: <span class="text-gray-900 dark:text-white font-bold">{{ $clients->total() }}</span>
+                @endif
+            </div>
+            
+            @if(request()->hasAny(['search', 'company']))
+                <a href="{{ route('clients.index') }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                    Limpar Filtros
+                </a>
+            @endif
+        </div>
+
+        {{-- TABELA DE CLIENTES (COM SCROLL) --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-[calc(100vh-280px)]">
             @if($clients->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="w-full">
+                {{-- Cabeçalho Fixo --}}
+                <div class="overflow-x-auto overflow-y-hidden border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                    <table class="w-full text-left whitespace-nowrap">
                         <thead>
-                            <tr class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cliente</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contatos</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Localização</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Última Interação</th>
-                                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ações</th>
+                            <tr>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4">Cliente</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4">Contatos</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/6">Localização</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/6">Última Interação</th>
+                                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/6">Ações</th>
                             </tr>
                         </thead>
+                    </table>
+                </div>
+
+                {{-- Corpo Scrollável --}}
+                <div class="overflow-y-auto flex-1">
+                    <table class="w-full text-left whitespace-nowrap">
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach($clients as $client)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition duration-150 group">
                                     {{-- COLUNA 1: Avatar e Nome --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-6 py-4 w-1/4">
                                         <div class="flex items-center">
                                             <x-avatar :name="$client->name" class="h-10 w-10 shrink-0" />
-                                            <div class="ml-4">
-                                                <div class="text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition">
+                                            <div class="ml-4 truncate">
+                                                <div class="text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition truncate">
                                                     {{ $client->name }}
                                                 </div>
-                                                <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-0.5">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-0.5 truncate">
                                                     {{ $client->company_name ?? 'Particular' }}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
 
-                                    {{-- COLUNA 2: Contatos (Com ícones de ação) --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    {{-- COLUNA 2: Contatos --}}
+                                    <td class="px-6 py-4 w-1/4">
                                         <div class="flex flex-col gap-1">
-                                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                                                <a href="mailto:{{ $client->email }}" class="flex items-center hover:text-blue-600 transition" title="Enviar Email">
-                                                    <svg class="w-4 h-4 mr-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                                    {{ Str::limit($client->email, 20) }}
-                                                </a>
-                                            </div>
-                                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                                                <a href="https://wa.me/55{{ preg_replace('/\D/', '', $client->phone) }}" target="_blank" class="flex items-center hover:text-green-600 transition" title="Abrir WhatsApp">
-                                                    <svg class="w-4 h-4 mr-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                                    {{ $client->phone }}
-                                                </a>
-                                            </div>
+                                            <a href="mailto:{{ $client->email }}" class="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 transition truncate" title="{{ $client->email }}">
+                                                <svg class="w-4 h-4 mr-2 opacity-70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                {{ Str::limit($client->email, 20) }}
+                                            </a>
+                                            <a href="https://wa.me/55{{ preg_replace('/\D/', '', $client->phone) }}" target="_blank" class="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-green-600 transition truncate">
+                                                <svg class="w-4 h-4 mr-2 opacity-70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                                {{ $client->phone }}
+                                            </a>
                                         </div>
                                     </td>
 
-                                    {{-- COLUNA 3: Cidade/Estado --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    {{-- COLUNA 3: Localização --}}
+                                    <td class="px-6 py-4 w-1/6">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
                                             {{ $client->city ?? 'N/A' }} / {{ $client->state ?? 'UF' }}
                                         </span>
                                     </td>
 
-                                    {{-- COLUNA 4: Última Interação (Com lógica de cor) --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    {{-- COLUNA 4: Última Interação --}}
+                                    <td class="px-6 py-4 w-1/6">
                                         @php
                                             $lastNote = $client->latestNote;
-                                            $days = $lastNote ? $lastNote->created_at->diffInDays(now()) : 999;
+                                            $days = $lastNote ? floor($lastNote->created_at->diffInDays(now())) : 999;
                                             $statusColor = $days < 7 ? 'text-green-600 bg-green-50' : ($days < 30 ? 'text-yellow-600 bg-yellow-50' : 'text-red-500 bg-red-50');
                                             $statusText = $lastNote ? $lastNote->created_at->format('d/m/Y') : 'Nunca';
                                         @endphp
@@ -135,8 +154,8 @@
                                         </div>
                                     </td>
 
-                                    {{-- COLUNA 5: Ações (Ícones) --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    {{-- COLUNA 5: Ações --}}
+                                    <td class="px-6 py-4 w-1/6 text-right text-sm font-medium">
                                         <div class="flex justify-end items-center gap-3">
                                             <a href="{{ route('clients.show', $client->id) }}" class="text-gray-400 hover:text-blue-600 transition transform hover:scale-110" title="Ver Detalhes">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -159,7 +178,7 @@
                     </table>
                 </div>
 
-                {{-- PAGINAÇÃO --}}
+                {{-- PAGINAÇÃO (FIXA NA BASE) --}}
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700">
                     {{ $clients->links() }}
                 </div>
