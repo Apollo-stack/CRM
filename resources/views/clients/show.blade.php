@@ -66,7 +66,7 @@
             <h3 class="text-xl font-bold text-white">Dados Cadastrais</h3>
             <a href="{{ route('clients.edit', $client->id) }}" class="text-blue-400 hover:underline">Editar Dados</a>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-gray-300">
             <div>
                 <span class="block text-xs font-bold uppercase text-gray-400 mb-1">Email</span>
                 <a href="mailto:{{ $client->email }}" class="text-blue-400 hover:underline">
