@@ -37,12 +37,17 @@
 
         {{-- COLUNA 1: NOVOS --}}
         <div class="bg-gray-800 p-4 rounded-lg flex flex-col h-full shadow-lg border border-gray-700 overflow-hidden">
-            <h3 class="font-bold text-gray-300 mb-4 flex justify-between items-center shrink-0">
-                Novos
-                <span class="bg-gray-700 text-gray-200 text-xs px-2 py-1 rounded-full border border-gray-600">
-                    {{ $leads->where('status', \App\LeadStatus::NEW)->count() }}
-                </span>
-            </h3>
+            <div class="mb-4 shrink-0">
+                <h3 class="font-bold text-gray-300 flex justify-between items-center">
+                    Novos
+                    <span class="bg-gray-700 text-gray-200 text-xs px-2 py-1 rounded-full border border-gray-600">
+                        {{ $leads->where('status', \App\LeadStatus::NEW)->count() }}
+                    </span>
+                </h3>
+                <div class="text-xs text-gray-500 mt-1">
+                    Total: R$ {{ number_format($leads->where('status', \App\LeadStatus::NEW)->sum('value'), 2, ',', '.') }}
+                </div>
+            </div>
             
             <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar pb-2" id="kanban-new" data-status="new">
                 @foreach($leads->where('status', \App\LeadStatus::NEW) as $lead)
@@ -55,12 +60,17 @@
 
         {{-- COLUNA 2: EM NEGOCIAÇÃO --}}
         <div class="bg-gray-800 p-4 rounded-lg flex flex-col h-full shadow-lg border border-gray-700 overflow-hidden">
-            <h3 class="font-bold text-blue-300 mb-4 flex justify-between items-center shrink-0">
-                Em Negociação
-                <span class="bg-blue-900/50 text-blue-200 text-xs px-2 py-1 rounded-full border border-blue-800">
-                    {{ $leads->where('status', \App\LeadStatus::NEGOTIATION)->count() }}
-                </span>
-            </h3>
+            <div class="mb-4 shrink-0">
+                <h3 class="font-bold text-blue-300 flex justify-between items-center">
+                    Em Negociação
+                    <span class="bg-blue-900/50 text-blue-200 text-xs px-2 py-1 rounded-full border border-blue-800">
+                        {{ $leads->where('status', \App\LeadStatus::NEGOTIATION)->count() }}
+                    </span>
+                </h3>
+                <div class="text-xs text-blue-400/70 mt-1">
+                    Total: R$ {{ number_format($leads->where('status', \App\LeadStatus::NEGOTIATION)->sum('value'), 2, ',', '.') }}
+                </div>
+            </div>
 
             <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar pb-2" id="kanban-negotiation" data-status="negotiation">
                 @foreach($leads->where('status', \App\LeadStatus::NEGOTIATION) as $lead)
@@ -73,12 +83,17 @@
 
         {{-- COLUNA 3: GANHOS --}}
         <div class="bg-gray-800 p-4 rounded-lg flex flex-col h-full shadow-lg border border-gray-700 overflow-hidden">
-            <h3 class="font-bold text-green-300 mb-4 flex justify-between items-center shrink-0">
-                Ganhos
-                <span class="bg-green-900/50 text-green-200 text-xs px-2 py-1 rounded-full border border-green-800">
-                    {{ $leads->where('status', \App\LeadStatus::WON)->count() }}
-                </span>
-            </h3>
+            <div class="mb-4 shrink-0">
+                <h3 class="font-bold text-green-300 flex justify-between items-center">
+                    Ganhos
+                    <span class="bg-green-900/50 text-green-200 text-xs px-2 py-1 rounded-full border border-green-800">
+                        {{ $leads->where('status', \App\LeadStatus::WON)->count() }}
+                    </span>
+                </h3>
+                <div class="text-xs text-green-400/70 mt-1">
+                    Total: R$ {{ number_format($leads->where('status', \App\LeadStatus::WON)->sum('value'), 2, ',', '.') }}
+                </div>
+            </div>
 
             <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar pb-2" id="kanban-won" data-status="won">
                 @foreach($leads->where('status', \App\LeadStatus::WON) as $lead)

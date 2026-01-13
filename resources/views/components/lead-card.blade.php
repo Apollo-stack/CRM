@@ -5,19 +5,28 @@
     
     {{-- Título e Link --}}
     <div class="flex justify-between items-start mb-2">
-        <a href="{{ route('leads.show', $lead->id) }}" class="font-bold text-gray-800 dark:text-white text-sm hover:underline hover:text-blue-600">
-            {{ $lead->title }}
-        </a>
-        <span class="text-xs text-gray-400 flex items-center gap-2">
-            #{{ $lead->id }}
+        <div class="flex flex-col">
+            <a href="{{ route('leads.show', $lead->id) }}" class="font-bold text-gray-800 dark:text-white text-sm hover:underline hover:text-blue-600 block mb-1">
+                {{ $lead->title }}
+            </a>
+            <span class="text-xs text-gray-400">#{{ $lead->id }}</span>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            @if($lead->user)
+                <div title="Responsável: {{ $lead->user->name }}">
+                    <x-avatar :name="$lead->user->name" class="w-6 h-6 text-[10px]" />
+                </div>
+            @endif
+            
             <form action="{{ route('leads.destroy', $lead->id) }}" method="POST" onsubmit="return confirm('Mover para lixeira?')">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="text-gray-400 hover:text-red-500 transition" title="Excluir">
-                    🗑️
+                <button type="submit" class="text-gray-400 hover:text-red-500 transition pt-0.5" title="Excluir">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
             </form>
-        </span>
+        </div>
     </div>
 
     {{-- Cliente --}}
