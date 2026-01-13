@@ -32,19 +32,24 @@
         </div>
     </div>
 
-    {{-- GRID DO PIPELINE --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {{-- GRID DO PIPELINE (COM SCROLL INDEPENDENTE) --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-180px)] min-h-[500px]">
 
         {{-- COLUNA 1: NOVOS --}}
-        <div class="bg-gray-800 p-4 rounded-lg min-h-[500px]">
-            <h3 class="font-bold text-gray-300 mb-4 flex justify-between items-center">
-                Novos
-                <span class="bg-gray-600 text-gray-200 text-xs px-2 py-1 rounded-full">
-                    {{ $leads->where('status', \App\LeadStatus::NEW)->count() }}
-                </span>
-            </h3>
+        <div class="bg-gray-800 p-4 rounded-lg flex flex-col h-full shadow-lg border border-gray-700 overflow-hidden">
+            <div class="mb-4 shrink-0">
+                <h3 class="font-bold text-gray-300 flex justify-between items-center">
+                    Novos
+                    <span class="bg-gray-700 text-gray-200 text-xs px-2 py-1 rounded-full border border-gray-600">
+                        {{ $leads->where('status', \App\LeadStatus::NEW)->count() }}
+                    </span>
+                </h3>
+                <div class="text-xs text-gray-500 mt-1">
+                    Total: R$ {{ number_format($leads->where('status', \App\LeadStatus::NEW)->sum('value'), 2, ',', '.') }}
+                </div>
+            </div>
             
-            <div class="space-y-3" id="kanban-new" data-status="new">
+            <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar pb-2" id="kanban-new" data-status="new">
                 @foreach($leads->where('status', \App\LeadStatus::NEW) as $lead)
                     <div data-id="{{ $lead->id }}">
                         <x-lead-card :lead="$lead" />
@@ -54,15 +59,20 @@
         </div>
 
         {{-- COLUNA 2: EM NEGOCIAÇÃO --}}
-        <div class="bg-gray-800 p-4 rounded-lg min-h-[500px]">
-            <h3 class="font-bold text-blue-300 mb-4 flex justify-between items-center">
-                Em Negociação
-                <span class="bg-blue-900 text-blue-200 text-xs px-2 py-1 rounded-full">
-                    {{ $leads->where('status', \App\LeadStatus::NEGOTIATION)->count() }}
-                </span>
-            </h3>
+        <div class="bg-gray-800 p-4 rounded-lg flex flex-col h-full shadow-lg border border-gray-700 overflow-hidden">
+            <div class="mb-4 shrink-0">
+                <h3 class="font-bold text-blue-300 flex justify-between items-center">
+                    Em Negociação
+                    <span class="bg-blue-900/50 text-blue-200 text-xs px-2 py-1 rounded-full border border-blue-800">
+                        {{ $leads->where('status', \App\LeadStatus::NEGOTIATION)->count() }}
+                    </span>
+                </h3>
+                <div class="text-xs text-blue-400/70 mt-1">
+                    Total: R$ {{ number_format($leads->where('status', \App\LeadStatus::NEGOTIATION)->sum('value'), 2, ',', '.') }}
+                </div>
+            </div>
 
-            <div class="space-y-3" id="kanban-negotiation" data-status="negotiation">
+            <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar pb-2" id="kanban-negotiation" data-status="negotiation">
                 @foreach($leads->where('status', \App\LeadStatus::NEGOTIATION) as $lead)
                     <div data-id="{{ $lead->id }}">
                         <x-lead-card :lead="$lead" />
@@ -72,15 +82,20 @@
         </div>
 
         {{-- COLUNA 3: GANHOS --}}
-        <div class="bg-gray-800 p-4 rounded-lg min-h-[500px]">
-            <h3 class="font-bold text-green-300 mb-4 flex justify-between items-center">
-                Ganhos
-                <span class="bg-green-900 text-green-200 text-xs px-2 py-1 rounded-full">
-                    {{ $leads->where('status', \App\LeadStatus::WON)->count() }}
-                </span>
-            </h3>
+        <div class="bg-gray-800 p-4 rounded-lg flex flex-col h-full shadow-lg border border-gray-700 overflow-hidden">
+            <div class="mb-4 shrink-0">
+                <h3 class="font-bold text-green-300 flex justify-between items-center">
+                    Ganhos
+                    <span class="bg-green-900/50 text-green-200 text-xs px-2 py-1 rounded-full border border-green-800">
+                        {{ $leads->where('status', \App\LeadStatus::WON)->count() }}
+                    </span>
+                </h3>
+                <div class="text-xs text-green-400/70 mt-1">
+                    Total: R$ {{ number_format($leads->where('status', \App\LeadStatus::WON)->sum('value'), 2, ',', '.') }}
+                </div>
+            </div>
 
-            <div class="space-y-3" id="kanban-won" data-status="won">
+            <div class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar pb-2" id="kanban-won" data-status="won">
                 @foreach($leads->where('status', \App\LeadStatus::WON) as $lead)
                     <div data-id="{{ $lead->id }}">
                         <x-lead-card :lead="$lead" />
@@ -92,4 +107,22 @@
     </div>
 
 </div>
+
+<style>
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+</style>
 @endsection
