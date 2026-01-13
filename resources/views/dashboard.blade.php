@@ -123,6 +123,7 @@
 
         // --- GRÁFICO DE STATUS (DONUT) ---
         const funnelData = @json($distribuicaoFunil);
+        const funnelLabels = ['Novos', 'Negociação', 'Ganhos', 'Perdidos'];
         const funnelSeries = [
             funnelData.novos || 0, 
             funnelData.negociacao || 0, 
@@ -132,14 +133,14 @@
 
         const statusOptions = {
             series: funnelSeries,
-            labels: ['Novos', 'Negociação', 'Ganhos', 'Perdidos'],
+            labels: funnelLabels,
             chart: {
                 type: 'donut',
                 height: 350,
                 fontFamily: 'Figtree, sans-serif',
                 background: 'transparent'
             },
-            colors: ['#3b82f6', '#eab308', '#10b981', '#ef4444'], // Camsi Colors (Blue, Yellow, Green, Red)
+            colors: ['#3b82f6', '#eab308', '#10b981', '#ef4444'], // Blue, Yellow, Green, Red
             plotOptions: {
                 pie: {
                     donut: {
