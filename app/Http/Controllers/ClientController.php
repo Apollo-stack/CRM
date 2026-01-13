@@ -180,4 +180,32 @@ class ClientController extends Controller
             'estado' => $cliente->state,
         ]);
     }
+
+    // ==========================================
+    // LIXEIRA (SOFT DELETES)
+    // ==========================================
+
+    public function trash()
+    {
+        $clients = Client::onlyTrashed()->paginate(15);
+        return view('clients.trash', compact('clients'));
+    }
+
+    public function restore($id)
+    {
+        $client = Client::onlyTrashed()->findOrFail($id);
+        $client->restore();
+
+        return redirect()->route('clients.trash')
+            ->with('success', 'Cliente restaurado com sucesso!');
+    }
+
+    public function forceDelete($id)
+    {
+        $client = Client::onlyTrashed()->findOrFail($id);
+        $client->forceDelete();
+
+        return redirect()->route('clients.trash')
+            ->with('success', 'Cliente excluído permanentemente!');
+    }
 }

@@ -7,10 +7,16 @@
         {{-- CABEÇALHO --}}
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-white">Lista de Clientes</h1>
-            <a href="{{ route('clients.create') }}" 
-               class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition">
-                + Novo Cliente
-            </a>
+            <div class="flex gap-2">
+                <a href="{{ route('clients.trash') }}" 
+                   class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-medium transition flex items-center" title="Ver Lixeira">
+                    🗑️
+                </a>
+                <a href="{{ route('clients.create') }}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition">
+                    + Novo Cliente
+                </a>
+            </div>
         </div>
 
         {{-- FILTROS E BUSCA --}}

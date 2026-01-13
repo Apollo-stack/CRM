@@ -8,7 +8,16 @@
         <a href="{{ route('leads.show', $lead->id) }}" class="font-bold text-gray-800 dark:text-white text-sm hover:underline hover:text-blue-600">
             {{ $lead->title }}
         </a>
-        <span class="text-xs text-gray-400">#{{ $lead->id }}</span>
+        <span class="text-xs text-gray-400 flex items-center gap-2">
+            #{{ $lead->id }}
+            <form action="{{ route('leads.destroy', $lead->id) }}" method="POST" onsubmit="return confirm('Mover para lixeira?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="text-gray-400 hover:text-red-500 transition" title="Excluir">
+                    🗑️
+                </button>
+            </form>
+        </span>
     </div>
 
     {{-- Cliente --}}

@@ -25,6 +25,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/clients', [App\Http\Controllers\ReportController::class, 'exportClients'])->name('reports.clients');
     Route::get('/reports/leads', [App\Http\Controllers\ReportController::class, 'exportLeads'])->name('reports.leads');
 
+    // Lixeira (Antes do Resource para não dar conflito com {id})
+    Route::get('/clients/trash', [ClientController::class, 'trash'])->name('clients.trash');
+    Route::put('/clients/{id}/restore', [ClientController::class, 'restore'])->name('clients.restore');
+    Route::delete('/clients/{id}/force', [ClientController::class, 'forceDelete'])->name('clients.force_delete');
+
+    Route::get('/leads/trash', [LeadController::class, 'trash'])->name('leads.trash');
+    Route::put('/leads/{id}/restore', [LeadController::class, 'restore'])->name('leads.restore');
+    Route::delete('/leads/{id}/force', [LeadController::class, 'forceDelete'])->name('leads.force_delete');
+
     Route::resource('clients', ClientController::class);
     Route::resource('leads', LeadController::class);
     Route::post('/leads/{id}/notes', [LeadController::class, 'storeNote'])->name('leads.notes.store');
