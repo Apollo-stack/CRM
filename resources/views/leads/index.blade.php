@@ -21,9 +21,15 @@
             </div>
         </div>
 
-        <a href="{{ route('leads.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition">
-            + Novo Negócio
-        </a>
+        <div class="flex gap-2">
+            <a href="{{ route('leads.trash') }}" 
+                class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg font-medium transition flex items-center" title="Ver Lixeira">
+                🗑️
+            </a>
+            <a href="{{ route('leads.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition">
+                + Novo Negócio
+            </a>
+        </div>
     </div>
 
     {{-- GRID DO PIPELINE --}}

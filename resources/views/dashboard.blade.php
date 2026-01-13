@@ -11,7 +11,7 @@
 
     {{-- GRID DE KPIS --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {{-- Ticket Médio --}}
+        {{-- Total de Clientes (Substituído por Ticket Médio conforme solicitado) --}}
         <x-kpi-card title="Ticket Médio" value="R$ {{ number_format($ticketMedio, 2, ',', '.') }}" color="orange" icon="
             <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z'></path></svg>
         " />
@@ -115,14 +115,13 @@
                 strokeDashArray: 4,
                 yaxis: { lines: { show: true } }
             },
-            theme: { mode: 'dark' } // Force dark mode theme adaptation if needed or handle conditionally
+            theme: { mode: 'dark' }
         };
 
         const salesChart = new ApexCharts(document.querySelector("#salesChart"), salesOptions);
         salesChart.render();
 
         // --- GRÁFICO DE STATUS (DONUT) ---
-        // Preparando dados do array associativo PHP
         const funnelData = @json($distribuicaoFunil);
         const funnelLabels = ['Novos', 'Negociação', 'Ganhos', 'Perdidos'];
         const funnelSeries = [

@@ -161,4 +161,32 @@ class LeadController extends Controller
 
         return back()->with('success', $typeMessages[$request->type] ?? 'Interação registrada!');
     }
+
+    // ==========================================
+    // LIXEIRA (SOFT DELETES)
+    // ==========================================
+
+    public function trash()
+    {
+        $leads = Lead::onlyTrashed()->with('client')->paginate(15);
+        return view('leads.trash', compact('leads'));
+    }
+
+    public function restore($id)
+    {
+        $lead = Lead::onlyTrashed()->findOrFail($id);
+        $lead->restore();
+
+        return redirect()->route('leads.trash')
+            ->with('success', 'Negócio restaurado com sucesso!');
+    }
+
+    public function forceDelete($id)
+    {
+        $lead = Lead::onlyTrashed()->findOrFail($id);
+        $lead->forceDelete();
+
+        return redirect()->route('leads.trash')
+            ->with('success', 'Negócio excluído permanentemente!');
+    }
 }
