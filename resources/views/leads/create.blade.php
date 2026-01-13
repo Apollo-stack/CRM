@@ -37,7 +37,7 @@
                     class="w-full bg-gray-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="">Selecione um cliente</option>
                 @foreach($clients as $client)
-                    <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                    <option value="{{ $client->id }}" {{ (old('client_id') ?? request('client_id')) == $client->id ? 'selected' : '' }}>
                         {{ $client->name }} - {{ $client->company_name ?? 'Particular' }}
                     </option>
                 @endforeach
