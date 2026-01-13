@@ -13,6 +13,11 @@ class UserScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
+        // Se for Gerente ou Admin, VÊ TUDO (não aplica o filtro)
+        if (auth()->check() && auth()->user()->isManager()) {
+            return;
+        }
+
         if (auth()->check()) {
             $builder->where($model->getTable() . '.user_id', auth()->id());
         }
