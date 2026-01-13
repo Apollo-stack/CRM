@@ -16,8 +16,29 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
+        // Estatísticas do Usuário
+        $totalSales = \App\Models\Lead::where('user_id', $user->id)
+            ->where('status', \App\LeadStatus::WON)
+            ->sum('value');
+
+        $activeLeads = \App\Models\Lead::where('user_id', $user->id)
+            ->whereIn('status', [\App\LeadStatus::NEW, \App\LeadStatus::NEGOTIATION])
+            ->count();
+
+        $totalLeads = \App\Models\Lead::where('user_id', $user->id)->count();
+        $wonLeads = \App\Models\Lead::where('user_id', $user->id)->where('status', \App\LeadStatus::WON)->count();
+        
+        $conversionRate = $totalLeads > 0 ? ($wonLeads / $totalLeads) * 100 : 0;
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'stats' => [
+                'total_sales' => $totalSales,
+                'active_leads' => $activeLeads,
+                'conversion_rate' => $conversionRate,
+            ]
         ]);
     }
 
