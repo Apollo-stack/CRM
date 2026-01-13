@@ -20,6 +20,11 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 Route::middleware(['auth'])->group(function () {
+    // Relatórios e Exportação
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/clients', [App\Http\Controllers\ReportController::class, 'exportClients'])->name('reports.clients');
+    Route::get('/reports/leads', [App\Http\Controllers\ReportController::class, 'exportLeads'])->name('reports.leads');
+
     Route::resource('clients', ClientController::class);
     Route::resource('leads', LeadController::class);
     Route::post('/leads/{id}/notes', [LeadController::class, 'storeNote'])->name('leads.notes.store');
